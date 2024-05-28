@@ -1,0 +1,75 @@
+/* Add styles for the about page */
+.about-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .about-content {
+    text-align: center;
+    margin: 20px auto;
+    max-width: 800px;
+  }
+  
+  .about-content h1 {
+    color: #333;
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  
+  .about-content p {
+    color: #666;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  
+  .about-page2 {
+    margin-top: 40px;
+    padding: 40px;
+    background-color: #fefefe;
+  }
+  
+  .choose-petco h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .base-orange {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #ffede0;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .box1, .box2 {
+    width: 45%;
+  }
+  
+  .box1 img {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+  
+  .box2 p {
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .box2 .login-btn {
+    background-color: #FCA311;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .box2 .login-btn:hover {
+    background-color: #d98e1f;
+  }
+  

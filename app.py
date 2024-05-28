@@ -125,7 +125,7 @@ def reset():
             if word == new1:
                 current_user.Password = current_user.set_password(word)
                 db.session.commit()
-                return "HIII"
+                return redirect(url_for('login'))
             else:
                 flash("Password not match")
             # return "Password reset successfully"
@@ -161,6 +161,10 @@ def authenticate():
 def logout():
     session.clear()
     return redirect (url_for("landing_page"))
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 
 with app.app_context():
