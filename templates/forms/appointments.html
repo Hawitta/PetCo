@@ -1,0 +1,68 @@
+{% extends "base/nav.html" %}
+{% block title %} Schedule Appointment {% endblock %}
+{% block content %}
+
+<section class="pet-container">
+  
+    <form class="pet-form" action="/book_appointment" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        
+        <h2> Book Appointment</h2>
+
+        <!-- Name input -->
+        <div data-mdb-input-init class="form-outline mb-4 mt-4">
+          
+                <label for="pet" id="form2Example1"  class="form-control">Choose a pet:
+                <select id="pet" name="pet" style="background-color: lightgray; padding: 10px; float:right; margin-right: 30px; line-height:2vh"></label>
+                    {% for pet in pets %}
+                        <option value="{{ pet }}">{{ pet.PetName }}</option>
+                    {% endfor %}
+                </select>
+                
+        </div>
+
+        <!-- Service Name input -->
+        <div data-mdb-input-init class="form-outline mb-4 mt-3">
+            <input type="text" id="form2Example1" name="ServiceName" class="form-control" />
+            <label class="form-label" for="form2Example1">Service Name </label>
+        </div>
+
+        <!-- Date input -->
+        <div data-mdb-input-init class="form-outline mb-4">
+            <input type="date" id="form2Example1" name="Date" class="form-control" />
+            <label class="form-label" for="form2Example1"></label>
+        </div>
+
+        <div class="col-13 d-flex justify-content-around ">
+            <!-- Extra info input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+                <input type="text" id="form2Example2" name="information" class="form-control" required />
+                <label class="form-label" for="form2Example2">Any other relevant information</label>
+            </div>
+
+         
+        </div>
+
+        <!-- Submit button -->
+        <!-- <button type="Submit"> SUBMIT </button> -->
+        <div class="add-pet">
+            <button data-mdb-ripple-init type="submit" class="btn btn-block mb-3 mt-4 pet-btn">Add Pet</button>
+        </div>
+        <!-- Register buttons -->
+
+    </form>
+</section>
+
+
+
+
+
+{% endblock %}

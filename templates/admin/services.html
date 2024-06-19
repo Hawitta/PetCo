@@ -1,0 +1,94 @@
+{% extends "base/nav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+<section class="viewServices">
+    <div class="ser-container">
+        <h2 id="header"> Services We Provide</h2>
+        <div class="row no-gutters" id="ser-row">
+            <div class="col-md-3" style="margin-right: -15px; margin-left: -10px;">
+                <div class="sercard user-card">
+                    <div class="card-block">
+                        <div class="d-flex align-items-center py-4 mt-0 mb-0" id="serv-dp">
+                            <img class="" src="{{ url_for('static', filename='images/pet-profile.png') }}" id="ser-pic">
+                        </div>
+                        <h4 class="service-name">Service Name </h4>
+                        <p class="text-muted">This service blah blah blah blah blah blah blah blah blah blah blah blah</p>
+                        <hr />
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" style="margin-right: -15px; margin-left: -10px;">
+                <div class="sercard user-card">
+                    <div class="card-block">
+                        <div class="d-flex align-items-center py-4 mt-1 " id="serv-dp">
+                            {% if current_user.is_authenticated %}
+                            <img class="" src="{{ url_for('static', filename='images/pet-profile.png') }}" id="ser-pic">
+                            {% else %}
+                            <img class="rounded-circle"
+                                src="{{ url_for('static', filename='images/pet-profile.png') }}">
+                            {% endif %}
+                        </div>
+                        <h6 class="f-w-600 m-t-25 m-b-10"> {{ gefegeg}}</h6>
+
+                        <p class="text-muted">{{gegeg }} | {{ egeg }} | Born 23.05.1992</p>
+                        <hr>
+                        <p class="text-muted m-t-15">Breed: {{ egegege }} </p>
+                        <hr />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" style="margin-right: -15px; margin-left: -10px;">
+                <div class="sercard user-card">
+                    <!-- <div class="card-header">
+                            <h5>Profile</h5>
+                        </div> -->
+                    <div class="card-block">
+                        <div class="d-flex align-items-center py-4 mt-1 " id="serv-dp">
+                            <img class="" src="{{ url_for('static',  filename='images/pet-profile.png')}}" id="ser-pic">
+                        </div>
+
+                        <h6 class="f-w-600 m-t-25 m-b-10">{{ wefetName }}</h6>
+
+                        <p class="text-muted">{{ wfee }} | {{ wefef }} | Born 23.05.1992</p>
+                        <hr>
+
+                        <p class="text-muted m-t-15">Breed: {{ wefewfe}}</p>
+                        <hr />
+
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="sercard user-card">
+                    <div class="card-block">
+                        <div class="d-flex align-items-center py-4 mt-1 " id="serv-dp">
+                            {% if current_user.is_authenticated %}
+                            <img class="" src="{{ url_for('static', filename='images/pet-profile.png')  }}"
+                                id="ser-pic">
+                            {% else %}
+                            <img class="rounded-circle"
+                                src="{{ url_for('static', filename='images/pet-profile.png') }}">
+                            {% endif %}
+                        </div>
+
+                        <h6 class="f-w-600 m-t-25 m-b-10">{{ rgergerg}}</h6>
+
+                        <p class="text-muted">{{ egergre}} | {{ ergergg}} | Born 23.05.1992</p>
+                        <hr>
+                        <hr />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{% endblock %}

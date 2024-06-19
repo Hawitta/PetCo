@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='img/apple-icon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/nucleo-icons.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/nucleo-svg.css') }}">
+
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+
+  <!-- <link href="../assets/css/nucleo-svg.css" rel="stylesheet" /> -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/nucleo-svg.css') }}">
+
+  <!-- CSS Files -->
+  <!-- <link id="pagestyle" href="../assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" /> -->
+  <link id="pagestyle" rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/soft-ui-dashboard.css') }}">
+
+  <!-- Nepcha Analytics (nepcha.com) -->
+  <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
+  <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+
+    <link rel="stylesheet" href="../static/mdb/css/mdb.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script type="module" type="text/javascript" src="../static/mdb/js/mdb.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='adminNav.css') }}">
+
+</head>
+
+<body>
+    <div class="wholeNav">
+        <nav class="navbar navbar-expand-lg shadow-none" style="background-color: #ffffff;" data-mdb-theme="light">
+            <div class="home-nav">
+                <button data-mdb-collapse-init class="navbar-toggler" type="button"
+                    data-mdb-target="#navbarCenteredExample" aria-controls="navbarCenteredExample" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="home-petco">
+                    <span>PetCo
+                        <img src="{{ url_for('static', filename='images/pet-care.png') }}" id="logo" />
+                    </span>
+                </div>
+                <div class="collapse navbar-collapse justify-content-center" id="navbarCenteredExample">
+                    <ul class="navbar-nav mb-1 mb-lg-0">
+
+                        <li class="nav-Item">
+                            <a class="nav-link" style="color:black" aria-current="page" href="/homee">Dashboard</a>
+                        </li>
+                        <li class="nav-Item">
+                            <a class="nav-link" href="#">Add Vet </a>
+                        </li>
+                        <li class="nav-Item">
+                            <a class="nav-link" href="/viewPet">Add Service </a>
+                        </li>
+                    </ul>
+
+                    <div class="menu">
+                        <div class="nav-Item">
+                            <a style="color:#FCA311; font-size:18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-left: 90px;"
+                                class="nav-link" href="{{ url_for('checkPass') }}"> Lock </a>
+
+                            <!-- <img src="{{ url_for('static', filename='images/lock.png') }}" href="{{ url_for('checkPass') }}" class="lock-img" /> -->
+                        </div>
+                        <div class="nav-Item">
+                            <a style="color:#FCA311; font-size: 18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"
+                                class="nav-link" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#staticBackdrop">Log out</a>
+                        </div>
+                  
+                    <div class="dropdown">
+                        <a class="profile-icon" style="font-size: 24px; margin-right: 5px;" href="/adminProfile" role="button" id="dropdownMenuLink" data-mdb-dropdown-init
+                            data-mdb-ripple-init aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+
+                        <!-- <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <li><a class="dropdown-item" href="/userProfile">My Profile</a></li>
+                            <li><a class="dropdown-item" href="/addPet">Add Pet</a></li>
+                            <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                        </ul> -->
+                    </div>
+                </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>

@@ -1,16 +1,23 @@
 from flask import Flask, render_template,session,redirect,abort, request,flash,g,url_for
 from google_auth_oauthlib.flow import Flow
 from flask_mail import Mail,Message
-from flask_login import LoginManager, login_user, logout_user, current_user
+from flask_login import LoginManager, login_user, logout_user, current_user,login_required
 from flask_session import Session
-from models import Users,RegistrationForm,db,LoginForm
+from models import Users,RegistrationForm,db,LoginForm,PetRegistrationForm,Pets
 from random import *
+from config import Config
 import pathlib,os
+from werkzeug.utils import secure_filename
 from flask_bcrypt import Bcrypt     
 from googleapiclient.discovery import build 
 from pathlib import Path
+from io import BytesIO
+import base64
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from bcrypt import hashpw, gensalt
-
+import re
 
 bcrypt = Bcrypt()
 otp =randint(000000,999999)
@@ -33,22 +40,24 @@ app.config['MAIL_USE_SSL'] = True
 app.secret_key = "MyGoogleSAuth"
 app.config['SESSION_FILE_DIR'] = os.path.join(app.root_path, "sessions")
 app.config['SESSION_FILE_THRESHOLD'] = 1000
+app.config.from_object(Config)
 mail = Mail(app)
-# Session(app)
 
+# Session(app)
 
 # GOOGLE CONFIGURATIONS
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 #
-
-# def set_password(self, Password):
-#     self.password_hash = hashpw(Password.encode('utf-8'), gensalt()).decode('utf-8')
-
 def set_password(Password):
     return bcrypt.generate_password_hash(Password).decode('utf-8')
         
+
 # SESSIONS MANAGER
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'  # The name of the login view
+
+
 @login_manager.user_loader
 def loader_user(user_id):
     return Users.query.get(user_id)
@@ -63,6 +72,8 @@ def landing_page():
 def home():
     return render_template("home.html")
 
+
+####################### AUTHENTICATION ##################################
 # LOGIN USER
 @app.route('/login', methods=["GET","POST"])
 def login():
@@ -101,12 +112,14 @@ def logchecker(otp):
 def register():
     Regform = RegistrationForm()
     if Regform.validate_on_submit():
-            #flash('Password must contain a number[0-9], characters(!,$) and a capital letter ', 'primary')
-            user = Users(Fullname=Regform.Fullname.data, Email=Regform.Email.data, Password=Regform.Password.data)
-            Fullname=Regform.Fullname.data
-            # session['reset_email'] = Email
-            fullname= session.get('Fullname')
-            
+            DEFAULT_PROFILE_IMAGE = 'static/images/default.png'
+            DEFAULT_CONTACT = ''
+            DEFAULT_ADDRESS = ''
+            user = Users(Fullname=Regform.Fullname.data, Email=Regform.Email.data,Password=Regform.Password.data)
+            user.Profile_pic = DEFAULT_PROFILE_IMAGE  # Assign default image path
+            user.Contact =DEFAULT_CONTACT
+            user.Address= DEFAULT_ADDRESS 
+
             db.session.add(user)
             db.session.commit()
 
@@ -151,7 +164,7 @@ def dis():
 @app.route('/reset', methods=["GET","POST"])
 def reset(): 
     if request.method == "POST":
-        Email = request.form['Email']
+        Email = current_user.Email
         # Email = session.get('reset_email')
         Password = request.form['New_Password']
         New_Password = request.form['Confirm_Password']  
@@ -161,7 +174,7 @@ def reset():
             user.Password = bcrypt.generate_password_hash(Password).decode('utf-8')
             db.session.commit()
             flash("Password updated successfully!", "primary")
-            return redirect(url_for("login"))
+            return redirect(url_for("homee")) #
                 
         else:
             flash("Password not match")
@@ -232,16 +245,20 @@ def checkPass():
         flash('Invalid password', 'danger')
     return render_template("forms/lock-sesh.html")
 
+
+
 # EVERYTHING GOOGLE
 
+###################### REGISTER WITH GOOGLE ###################################
 
-# REGISTER WITH GOOGLE 
+# Initialize the OAuth 2.0 flow using client secrets file
 flow = Flow.from_client_secrets_file(
     client_secrets_file,  # Path to the client_secret.json file
     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
     redirect_uri="http://127.0.0.1:5000/home"
 )
 
+#Dictionary of redentials retrieved from google
 def credentials_to_dict(credentials):
     return {'token': credentials.token,
             'refresh_token': credentials.refresh_token,
@@ -296,7 +313,7 @@ def google_auth_callback():
     return render_template("home.html")
 
 
-# LOGIN WITH GOOGLE
+#################### LOGIN WITH GOOGLE ###########################
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file,  # Path to the client_secret.json file
@@ -317,7 +334,8 @@ def credentials_to_dict(credentials):
 def logauthorize():
     # Intiiate login request
     flow.redirect_uri = url_for('callback', _external=True)
-    authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+    authorization_url, state = flow.authorization_url(access_type='offline', 
+                                                      include_granted_scopes='true')
     return redirect(authorization_url)
 
 ## Used by Google OAuth
@@ -355,7 +373,11 @@ def callback():
 
     return render_template("landing.html")
 
-@app.route('/reg-reset',methods=["GET","POST"])
+############################################################################
+
+
+
+@app.route('/reg-reset',methods=["GET","POST"]) #reset password after user registration
 def newreset():
     if current_user.is_authenticated:
         if request.method == "POST":
@@ -373,6 +395,304 @@ def newreset():
     else:
         return redirect(url_for('login'))
 
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
+
+
+@app.route('/userProfile', methods=['POST', 'GET'])
+def uploadProfile():
+    
+    # Profile picture logic
+    if request.method == 'POST':
+        
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+         
+        file = request.files['file']
+        
+        if file.filename == '':
+            flash('No file was selected')
+            return redirect(request.url)
+        else: 
+            print(file.filename) #Dogfinal.jpg
+            file.filename = f"{current_user.id}_{file.filename}" # re-name the image to match petid
+            print(file.filename)
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(Config.UPLOAD_FOLDER, filename)
+            print(f"Saving file to: {save_path}")  # Debug statement
+            
+            #Edit path to be stored in the database
+            db_path = os.path.join('static', 'uploads', filename)
+            image_path = db_path.replace('\\', '/')
+            
+            current_user.Profile_pic = image_path
+            db.session.commit()
+            
+            try:
+                file.save(save_path)
+            
+                flash('Image has been successfully uploaded')
+               # image_url = url_for('uploaded_file', filename=filename)
+            except Exception as e:
+                flash(f"An error occurred while saving the file: {e}")
+                print(f"Error: {e}")  # Debug statement
+            
+            return render_template('userProfile.html',filename=filename)
+        else:
+            flash('Allowed media types are - png, jpg, jpeg, gif')
+            return redirect(request.url)
+    
+    return render_template('userProfile.html')
+
+@app.route('/uploads/<filename>')
+def display_profile(filename):
+    return redirect(url_for('static', filename='uploads/' +filename), code=301)
+
+def is_valid_kenyan_phone_number(phone_number):
+    # Regular expression to match Kenyan phone numbers
+    # Valid format: 10 digits starting with 07, 01, 07x, or 01x
+    pattern = r'^(07\d{8}|01\d{8}|+254\d{7}|01\d{7})$'
+
+    # Check if the phone number matches the pattern
+    if re.match(pattern, phone_number):
+        return True
+    else:
+        return False
+
+@app.route('/updateProfile', methods=['POST', 'GET']) # view User profile
+def updateProfile():
+    user = Users.query.filter_by(id=current_user.id).first()
+
+    if not user:
+        flash("User not found!", "danger")
+        return redirect(url_for('uploadProfile'))
+
+    if request.method == "POST":
+        Fullname = request.form["UpdateFullname"]
+        Email = request.form["UpdateEmail"]
+        Contact = request.form["UpdateContact"]
+        Address = request.form["UpdateAddress"]
+
+        # Update the user object with correct number data
+        if is_valid_kenyan_phone_number(Contact):
+            user.Fullname = Fullname
+            user.Email = Email
+            user.Contact = Contact
+            user.Address = Address
+            db.session.commit()
+            flash('Details updated!', 'success')
+        else:
+            flash("Please input a valid number (07../01..)","danger")
+
+    return redirect(url_for('uploadProfile'))
+
+
+# @app.route('/pet-list')
+# def display_pet_list():
+#     user = current_user.id
+#     pets = Pets.query.filter_by(OwnerId=user).all()
+#     if len(pets) == 1:
+#         "you have one pet"
+#     return render_template ("userProfile.html", pets = pets)
+
+
+@app.route('/delete-profile-picture', methods=['POST']) #Delete pet owner profile picture
+def delete_profile_picture():
+    current_user.Profile_pic = None 
+    db.session.commit()
+    return redirect(url_for('uploadProfile'))
+
+
+@app.route('/bookAppointment', methods=['POST', 'GET'])  #Book appointment
+def book_appointment():
+    user = current_user.id
+    pets = Pets.query.filter_by(OwnerId=user).all()
+    
+    if len(pets) == 0:
+        flash("You have no pets registered", "danger")
+    # if request.method == 'POST':
+    #     selected_pet = request.form['pet']
+    #     # Process the selected pet here
+    #     return f'Selected pet: {selected_pet}'
+
+    return render_template('forms/appointments.html',  pets=pets)
+
+
+##################### PET MODULE ################################
+
+@app.route('/addPet', methods=["POST","GET"]) #register new pets
+@login_required
+def addPet():
+    
+    if request.method == "POST":
+        DEFAULT_PROFILE_IMAGE = 'static/images/pet-profile.png'
+        PetName = request.form['PetName']
+        Type = request.form['Type']
+        Species = request.form['Species']
+        Age = request.form['Age']
+        Gender = request.form['Gender']
+        
+        pet = Pets(PetName=PetName,Type=Type,Species=Species,Age=Age,Gender=Gender,OwnerId=current_user.id, Profile_pic=DEFAULT_PROFILE_IMAGE)
+        db.session.add(pet)
+        db.session.commit()
+        flash('New pet registered','success')
+   
+    return render_template ("petForms/addPet.html")
+
+
+@app.route('/viewPet',  methods=["POST","GET"])    #view list of pets
+def viewPet():
+    user_pets = Pets.query.filter_by(OwnerId=current_user.id).all()
+    return render_template('petForms/viewPets/viewPets.html', user_pets=user_pets)
+
+@app.route('/view-pet-profile/<int:first_pet>')    # view edit pet profile
+def view_pet_profile(first_pet):
+    pet = Pets.query.filter_by(PetID=first_pet).first()
+    # profile_pic = pet.Profile_pic
+    print(pet)
+    print(current_user)
+    return render_template('petForms/viewProfile/petProfile.html',pet=pet)
+
+
+@app.route('/petProfilePic/<pet>', methods=['POST', 'GET'])   #upload pet profile picture
+def uplProfile(pet):
+    pet = Pets.query.filter_by(PetID=pet).first()
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+         
+        file = request.files['file']
+        print(file)
+        
+        if file.filename == '':
+            flash('No file was selected')
+            return redirect(request.url)
+        else:
+            print(file.filename) #Dogfinal.jpg
+            file.filename = f"{pet.PetID}_{file.filename}" # re-name the image to match petid
+            print(file.filename)
+            
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(Config.UPLOAD_FOLDER, filename)
+            print(f"Saving file to: {save_path}")  # Debug statement
+            
+            db_path = os.path.join('static', 'uploads', filename)
+            image_path = db_path.replace('\\', '/')
+
+            pet.Profile_pic = image_path
+            db.session.commit()
+            
+            try:
+                file.save(save_path)
+            
+                flash('Image has been successfully uploaded')
+               # image_url = url_for('uploaded_file', filename=filename)
+            except Exception as e:
+                flash(f"An error occurred while saving the file: {e}")
+                print(f"Error: {e}")  # Debug statement
+            
+            return render_template('petForms/viewProfile/petProfile.html',filename=filename, pet=pet)
+        else:
+            flash('Allowed media types are - png, jpg, jpeg, gif')
+            return redirect(request.url)
+    
+    return render_template('petForms/viewProfile/petProfile.html')
+
+@app.route('/delete-pet-picture/<int:pet>', methods=['POST'])  #Delete pet picture
+def delete_pet_picture(pet):
+    pet.Profile_pic = None 
+    db.session.commit()
+    return redirect(url_for('uploadPetPic'))
+
+
+
+######################## VET MODULE ############################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################### ADMIN OPERATIONS ############################
+@app.route("/adminHome")
+def admin():
+    fig, ax = plt.subplots(figsize=(4, 3))
+    fruits = ['apple', 'blueberry', 'cherry', 'orange']
+    counts = [40, 100, 30, 55]
+    bar_labels = ['red', 'blue', '_red', 'orange']
+    bar_colors = ['tab:red', 'tab:blue', 'tab:red', 'tab:orange']
+
+    ax.bar(fruits, counts, label=bar_labels, color=bar_colors)
+    ax.set_ylabel('Fruit supply')
+    ax.set_title('Fruit supply by kind and color')
+    ax.legend(title='Fruit color')
+
+    # Save bar chart to a temporary file
+    bar_img = BytesIO()
+    plt.savefig(bar_img, format='png', dpi=100)
+    bar_img.seek(0)
+    bar_plot_url = base64.b64encode(bar_img.getvalue()).decode()
+    plt.close()
+
+    # Create the pie chart
+    labels = 'Birds', 'Cats', 'Dogs', 'Guinea Pig'
+    sizes = [15, 30, 45, 10]
+
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%')
+    # ax.set_title('Pie chart')
+    
+    # Save pie chart to a temporary file
+    pie_img = BytesIO()
+    plt.savefig(pie_img, format='png', dpi=100)
+    pie_img.seek(0)
+    pie_plot_url = base64.b64encode(pie_img.getvalue()).decode()
+    plt.close()
+
+    return render_template('soft-ui-dashboard-main/pages/dashboard.html', bar_plot_url=bar_plot_url, pie_plot_url=pie_plot_url)
+
+@app.route("/addServices")
+def addServices():
+    return render_template('soft-ui-dashboard-main/pages/addServices.html')
+
+
+@app.route("/addVet")
+def addVet():
+    return render_template('soft-ui-dashboard-main/pages/addServices.html')
+
+
+@app.route("/services")
+def displayServices():
+    return render_template('services.html')
 
 with app.app_context():
     db.create_all()

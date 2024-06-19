@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="../static/mdb/css/mdb.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script type="module" type="text/javascript" src="../static/mdb/js/mdb.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='petcss/addPet.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='formscss/userProfile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='formscss/reset-pass.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='services.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='petcss/viewPets.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='petcss/nopet.css') }}">
+
+</head>
+
+<body>
+    <div class="viewPetsNav">
+        <nav class="navbar navbar-expand-lg shadow-none" style="background-color: #ffffff;" data-mdb-theme="light">
+            <div class="home-nav">
+                <button data-mdb-collapse-init class="navbar-toggler" type="button"
+                    data-mdb-target="#navbarCenteredExample" aria-controls="navbarCenteredExample" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="home-petco">
+                    <span>PetCo
+                        <img src="{{ url_for('static', filename='images/pet-care.png') }}" id="logo" />
+                    </span>
+                </div>
+                <div class="collapse navbar-collapse justify-content-center" id="navbarCenteredExample">
+                    <ul class="navbar-nav mb-1 mb-lg-0">
+
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="/homee">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">About </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/viewPet">My Pets </a>
+                        </li>
+                    </ul>
+
+                    <div class="menu">
+                        <div class="nav-item">
+                            <a style="color:#FCA311; font-size:18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-left: 100px;"
+                                class="nav-link" href="{{ url_for('checkPass') }}"> Lock </a>
+
+                            <!-- <img src="{{ url_for('static', filename='images/lock.png') }}" href="{{ url_for('checkPass') }}" class="lock-img" /> -->
+                        </div>
+                        <div class="nav-item">
+                            <a style="color:#FCA311; font-size: 18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"
+                                class="nav-link" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#staticBackdrop">Log out</a>
+                        </div>
+                  
+                    <div class="dropdown">
+                        <a class="profile-icon" style="font-size: 24px; margin-right: 10px;" href="#" role="button" id="dropdownMenuLink" data-mdb-dropdown-init
+                            data-mdb-ripple-init aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+
+                        <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <li><a class="dropdown-item" href="/userProfile">My Profile</a></li>
+                            <li><a class="dropdown-item" href="/addPet">Add Pet</a></li>
+                            <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>

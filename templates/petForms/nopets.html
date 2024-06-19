@@ -1,0 +1,15 @@
+{% extends "base/nav.html" %}
+{% block title %}User Profile {% endblock %}
+{% block content %}
+
+<section class="notification">
+    <div class="no-pet-container">
+        <h4> You have no pets registered</h4>
+        <div class="mt-5 text-center">
+            <a href="addPet" class="btn btn-primary profile-button" type="submit">
+                Add Pet</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

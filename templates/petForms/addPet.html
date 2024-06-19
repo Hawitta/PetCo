@@ -1,0 +1,65 @@
+{% extends "base/nav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+
+<section class="pet-container">
+  
+    <form class="pet-form" action="/addPet" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        
+        <h2> Register Pet</h2>
+
+        <!-- Name input -->
+        <div data-mdb-input-init class="form-outline mb-4 mt-4">
+            <input type="text" id="form2Example1" name="PetName" class="form-control" />
+            <label class="form-label" for="form2Example1">Pet Name </label>
+        </div>
+
+        <!-- Type input -->
+        <div data-mdb-input-init class="form-outline mb-4">
+            <input type="text" id="form2Example1" name="Type" class="form-control" />
+            <label class="form-label" for="form2Example1">Type </label>
+        </div>
+
+        <!-- Species input -->
+        <div data-mdb-input-init class="form-outline mb-4">
+            <input type="text" id="form2Example1" name="Species" class="form-control" />
+            <label class="form-label" for="form2Example1">Species</label>
+        </div>
+
+        <div class="col-13 d-flex justify-content-around ">
+            <!-- Age input -->
+
+            <div data-mdb-input-init class="form-outline mb-4">
+                <input type="number" id="form2Example2" name="Age" class="form-control" required />
+                <label class="form-label" for="form2Example2">Age</label>
+            </div>
+
+            <!-- Gender input -->
+            <div data-mdb-input-init class="form-outline mb-4">
+                <label class="form-label" for="form2Example1"> Gender</label><br /> <br />
+                <input type="radio" name="Gender" value="male"> Male &nbsp&nbsp
+                <input type="radio" name="Gender" value="female"> Female
+            </div>
+
+        </div>
+
+        <!-- Submit button -->
+        <!-- <button type="Submit"> SUBMIT </button> -->
+        <div class="add-pet">
+            <button data-mdb-ripple-init type="submit" class="btn btn-block mb-3 mt-4 pet-btn">Add Pet</button>
+        </div>
+        <!-- Register buttons -->
+
+    </form>
+</section>
+{% endblock %}

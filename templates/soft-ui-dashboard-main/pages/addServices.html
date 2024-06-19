@@ -1,0 +1,48 @@
+{% extends "base/nav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+<section class="pet-container">
+
+    <form class="pet-form" action="/addService" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <h2> Add Services</h2>
+
+        <!-- Name input -->
+        <div data-mdb-input-init class="form-outline mb-4 mt-4">
+            <input type="text" id="form2Example1" name="ServiceName" class="form-control" />
+            <label class="form-label" for="form2Example1">Service Name </label>
+        </div>
+
+        <!-- Type input -->
+        <div data-mdb-input-init class="form-outline mb-4">
+            <input type="text" id="form2Example1" name="ServiceDescription" class="form-control" />
+            <label class="form-label" for="form2Example1">Service Description </label>
+        </div>
+
+        <!-- Species input -->
+        <div data-mdb-input-init class="form-outline mb-4">
+            <input type="text" id="form2Example1" name="Cost" class="form-control" />
+            <label class="form-label" for="form2Example1">Cost</label>
+        </div>
+
+        <!-- <button type="Submit"> SUBMIT </button> -->
+        <div class="add-pet">
+            <button data-mdb-ripple-init type="submit" class="btn btn-block mb-3 mt-4 pet-btn">Add Pet</button>
+        </div>
+        <!-- Register buttons -->
+
+    </form>
+</section>
+
+
+{% endblock %}

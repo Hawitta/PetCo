@@ -1,0 +1,45 @@
+{% extends "base/nav.html" %}
+{% block title %} Your Pets {% endblock %}
+{% block content %}
+
+<section class="viewPets">
+    <div class="container">
+        <div class="row">
+            {% if user_pets %}
+                {% for pet in user_pets %}
+                    <div class="col-md-4">
+                        <div class="card user-card">
+                            <div class="card-block">
+                                <div class="d-flex align-items-center py-4 mt-0 mb-0" id="dp">
+                                    {% if current_user.is_authenticated %}
+                                    <img class="pet-picture"
+                                        src="{{ url_for('static', filename=pet.Profile_pic.replace('static/', '')) }}" id="pet-pic">
+                                    {% else %}
+                                    <img class="rounded-circle"
+                                        src="{{ url_for('static', filename='images/pet-profile.png') }}" >
+                                    {% endif %}
+                                </div>
+                                <br>
+                            
+                                <h6 class="f-w-600 m-b-10" style="font-size: 18px;">{{ pet.PetName }}</h6>
+                                <p class="text-muted mt-4" style="font-size: 16px; text-align: center;">{{ pet.Type }} | {{ pet.Gender }} | Born 23.05.1992</p>
+                                <hr>
+                                <p class="text-muted m-t-15" style="font-size: 16px; text-align: center;">Breed: {{ pet.Species }}</p>
+                
+                                <hr />
+                                <div>
+                                    <button class="petprofile" onclick="location.href='/view-pet-profile/{{ pet.PetID }}'" type="button">
+                                        View</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No pets found.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

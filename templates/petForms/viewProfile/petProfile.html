@@ -1,0 +1,118 @@
+{% extends "base/nav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+
+<section class="pet-container">
+
+    <div class="container rounded bg-white mt-5 mb-5">
+        <div class="row">
+            <!-- {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %} 
+              
+            -->
+
+            <div class="col-md-5 text-center border-right border-left" id="parent-profile">
+                <div id="profile">
+                    <div class="d-flex justify-content-between align-items-center py-4">
+                        {% if current_user.is_authenticated and pet.Profile_pic %}
+                        <img class="rounded-circle"
+                        src="http://127.0.0.1:5000/{{ pet.Profile_pic }}" id="profile-pic">
+                        {% else %}
+                        <img class="rounded-circle" src="{{ url_for('static', filename = pet.Profile_pic) }}"
+                            id="profile-pic">
+                        {% endif %}
+                    </div>
+
+                </div>
+                <div class="mt-4 mb-5">
+                    <span class="font-weight-bold "> {{ pet.PetName }} </span><br />
+                    <span class="text-black-50"></span><span> </span>
+                </div>
+                <form method="POST" enctype="multipart/form-data" action="/petProfilePic/{{ pet.PetID }}">
+                    <div class="choose_file">
+                        <span>Choose Picture</span>
+                        <input type="file" name="file" />
+                        <input type="submit" value="Upload" />
+                    </div>
+                </form>
+                <form method="POST" action="/delete-pet-picture">
+                    <div class="delete_picture">
+                        <button type="submit" class="delete-button"
+                            onclick="return confirm('Are you sure you want to delete your profile picture?');">
+                            <i class="fas fa-trash-alt"></i>
+                    </div>
+                </form>
+
+            </div>
+            <div class="col-md-7 border-right">
+                <div class="p-3 py-1">
+                    <div class="d-flex justify-content-between align-items-center mb-0">
+                        <h4 class="text-right">Profile Settings</h4>
+                    </div>
+                    <div class="row mt-3" id="profile-form-pet">
+                        <form action="/updateProfile" method="POST">
+                            <div class="col-md-12">
+                                <label class="labels">Fullname</label>
+                                <input type="text" name="UpdateFullname" class="form-control" placeholder=""
+                                    value="{{ pet.PetName }}">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="labels">Type </label>
+                                <input type="text" name="UpdateEmail" class="form-control" placeholder="Enter email"
+                                    value="{{ pet.Type }}">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="labels">Species </label>
+                                <input type="integer" name="UpdateContact" class="form-control" placeholder=""
+                                    value="{{ pet.Species }}">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="labels" for="sel1">Gender</label>
+                                <input type="integer" name="UpdateContact" class="form-control" placeholder=""
+                                    value="{{ pet.Gender }}">
+
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="labels" for="sel1">Age</label>
+                                <input type="integer" name="UpdateContact" class="form-control" placeholder=""
+                                    value="{{ pet.Age }}">
+
+                            </div>
+
+                            <div class="mt-5 mb-5 text-center">
+                                <button class="btn btn-primary profile-button" type="submit">Save
+                                    Profile</button>
+                            </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+
+
+    <!-- <script>
+        function chooseFile() {
+           document.getElementById("fileInput").click();
+        }
+     </script> -->
+
+</section>
+{% endblock %}
