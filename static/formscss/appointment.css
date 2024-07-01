@@ -1,0 +1,255 @@
+.appointment-form {
+    width: 70% ;
+    display: flex;
+    justify-content: center;
+    height: auto;
+    align-items: center;
+    padding: auto;
+    margin: auto;
+    margin-top: 10px;
+   
+  }
+  
+
+#date{
+  margin-left: 20px;
+} 
+
+.appform {
+    width: 80%;
+    margin: 120px;
+    margin-top: 8px;
+    padding: 50px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: 20px;
+
+    input{  
+        width: 75%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-left: 5px;
+    }
+
+    .form-check-input{
+      width: 3%;
+      margin-left: -10px;
+    }
+
+    .form-check-label{
+      margin-right: -4px;
+    }
+}
+
+  .flashes {
+    display: flex;
+    justify-content: center;
+  
+    .alert-primary {
+      color: #004085;
+      background-color: #cce5ff;
+      border-color: #b8daff;
+      height: 5vh;
+      width: 100%;
+      font-size: 15px;
+    }
+  
+    .alert-success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+      height: 5vh;
+      width: 100%;
+      font-size: 15px;
+    }
+  
+    .alert-danger {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+      height: 5vh;
+      width: 100%;
+      font-size: 15px;
+    }
+  }
+  
+  
+.flashes .alert {
+  padding: 12px 12px 8px 6px;
+  display: flex;
+  justify-content: center; 
+  font-size: 16px;
+
+  border-radius: 4px; /* Adjust border radius if needed */
+  height: 9vh;
+}
+
+label,
+.form-label {
+  font-size: 15px;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+  color: #344767;
+  margin-left: 11px;
+} 
+/*   
+  .flashes .alert {
+    padding: 12px 12px 8px 6px;
+    display: flex;
+    justify-content: center;
+    font-size: 15px;
+  
+    border-radius: 4px; 
+    height: 9vh;
+  } */
+  
+
+  .add-pet {
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .pet-btn {
+    width: 50%;
+    background-color: #fca311;
+    color: white;
+    text-align: center;
+    font-family: "Franklin Gothic Light", "Arial Narrow", Arial, sans-serif;
+  }
+  
+  /* Base styles for the select button */
+.select-button {
+    line-height: 0.15em;
+    width: 50%;
+    background-color: #ffffff; /* white background */
+    border: none; /* Remove borders */
+    color: rgb(5, 5, 5); /* White text */
+    padding: 12px; /* Some padding */
+    font-size: 16px; /* Set a font size */
+    cursor: pointer; /* Add a pointer cursor on hover */
+    border-radius: 8px; /* Rounded corners */
+    option{
+        background-color: #ffffff;
+        font-family: "Franklin Gothic Light", "Arial Narrow", Arial, sans-serif;
+    }
+  }
+  
+  /* Hover state */
+  .select-button:hover {
+    background-color: #ffffff; /* Darker green background */
+
+  }
+  
+  /* Active state */
+  .select-button:active {
+    background-color: #ffffff; /* Even darker green background */
+    transform: translateY(0); /* Reset lift */
+    box-shadow: 0 2px 4px rgba(244, 244, 244, 0.1); /* Adjust shadow */
+  }
+  
+  /* Focus state for accessibility */
+  .select-button:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.6); /* Add a custom focus outline */
+  }
+  
+
+
+  #radio{
+    input{
+      width: 30%;
+      margin-left: -60px;
+      margin-right: -70px;
+    }
+  }
+
+  /* Custom CSS to make form responsive */
+  
+@media (min-width: 992px) and (max-width: 1199px) {
+    .reg-vet-form {
+        width: 60%;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .reg-vet-form {
+        width: 100%;
+    }
+    .reg-vet-container {
+      width:100%;
+
+    }
+}
+
+@media (max-width: 767px) {
+    .reg-vet-form {
+        width: 130%;
+        padding: 3px;
+        h2{
+          font-size: 19px;
+          padding: 6px;
+        }
+        input{
+          font-size: 13px;
+        }
+    }
+    .reg-vet-container {
+      width:120%;
+      margin-left: -37px;
+    }
+}
+/* @media (max-width: 767.98px) {
+  .reg-vet-form {
+      padding: 13px;
+      width: 100%;
+
+      h2{
+        font-size: 23px;
+        padding-bottom: 10px;
+      }
+  }
+  .reg-vet-container {
+    width:100%;
+  }
+
+  .select-button{
+    width: 80%;
+  }
+} */
+/* 
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .reg-vet-form {
+      padding: 20px;
+  }
+  .reg-vet-form .form-group {
+      margin-bottom: 20px;
+  }
+
+  .select-button{
+    width: 80%;
+  }
+
+} */
+
+/* 
+@media (max-width: 586.98px) {
+  .reg-vet-container {
+    width: 140%;
+  }
+  .reg-vet-form{
+    width: 100%;
+
+    input{
+      width: 100%;
+    }
+
+  }
+
+  .select-button{
+    width: 60%;
+  }
+
+} */
+
+
+

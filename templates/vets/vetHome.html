@@ -1,0 +1,138 @@
+{% extends "vets/vetNav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+<section>
+
+
+    <div class="vet-dashboard">
+        <section class="vetPage">
+            <div id='calendar'></div>
+        </section>
+
+        <div class="label-div">
+            <h4> Pending Appointments</h4>
+            <a href="/approvedAppointments/1" class="view-btn"> Approved Appointments </a>
+        </div>
+
+        <section class="vetPageTwo">
+
+            <table class="table align-middle bg-white" id="table">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Id</th>
+                        <th>PetName </th>
+                        <th>Information</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th> </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        {% if bookings %}
+                        {% for app in bookings %}
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {{ app.id }}
+                            </div>
+                        </td>
+                        <td>
+                            <p class="fw-normal mb-1">{{ app.name }}</p>
+                        </td>
+                        <td>{{ app.info }}</td>
+
+                        <td> {{ app.status }}</td>
+                        <td> {{ app.date}}</td>
+                        <td> <button type="button" class="btn btn-link btn-sm btn-rounded" data-mdb-ripple-init
+                                data-mdb-modal-init data-mdb-target="#exampleModal"
+                                style="color:green;font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;"
+                                onclick="editAppointment('{{ app.id }}')">
+                                Edit
+                            </button> </td>
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel"> Set appointment time</h5>
+                                        <button type="button" class="btn-close" data-mdb-ripple-init
+                                            data-mdb-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/appointmentApproval" method="POST" class="modal-form">
+
+                                            {% if request.method == 'POST' %}
+                                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                            {% if messages %}
+                                            <div class="flashes">
+                                                {% for category, message in messages %}
+                                                <div class="alert alert-primary">{{ message }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                            {% endwith %}
+                                            {% endif %}
+                                            <p style="color: rgb(3, 178, 3); font-size: 15px; margin-top: -20px;"><i
+                                                    class="fas fa-circle-exclamation"></i></i> Pet Owner will be
+                                                notified to be present at the time selected</p>
+                                            <div data-mdb-input-init class="form-outline mb-4 mt-3" id="time">
+                                                <label class="form-label" for="loginPassword">Time</label>
+                                                <input type="time" name="Time" class="" required />
+                                            </div>
+                                            <input type="hidden" id="appIdInput" name="appid">
+                                            <div data-mdb-input-init class="form-outline mb-4">
+                                                <label class="form-label" for="Duration">Duration</label>
+                                                <select id="duration" name="Duration" class="select-button">
+
+                                                    <option>30 min</option>
+                                                    <option>1hr </option>
+                                                    <option>1hr 30min</option>
+                                                    <option>2hrs</option>
+                                                    <option>2hrs 30min</option>
+                                                    <option>3hrs</option>
+                                                    <option>2hr 30min</option>
+
+                                                </select>
+                                            </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-mdb-ripple-init
+                                            data-mdb-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary" data-mdb-ripple-init>Save
+                                            changes</button>
+                                    </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <p>
+                        No bookings
+                    </p>
+                    {% endif %}
+                    <tr>
+
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Button trigger modal -->
+
+
+        </section>
+    </div>
+</section>
+<script>
+    function editAppointment(appid) {
+        // Set the appid value in the hidden input field
+        document.getElementById('appIdInput').value = appid;
+    }
+</script>
+
+
+{% endblock %}

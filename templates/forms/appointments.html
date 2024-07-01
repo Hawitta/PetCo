@@ -1,65 +1,155 @@
 {% extends "base/nav.html" %}
-{% block title %} Schedule Appointment {% endblock %}
+{% block title %} {% endblock %}
 {% block content %}
 
-<section class="pet-container">
-  
-    <form class="pet-form" action="/book_appointment" method="POST">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
+<div class="label-div">
+    <h4> Pending Appointments</h4>
+    <a class="app-btn" href="{{ url_for('bookappointment')}}">Book Appointment</a>
+
+</div>
+
+<section class="appLists">
+
+    {% if request.method == 'POST' %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes">
         {% for category, message in messages %}
-        <div class="alert alert-{{ category }}" role="alert">
-            {{ message }}
-        </div>
+        <div class="alert alert-primary">{{ message }}</div>
         {% endfor %}
-        {% endif %}
-        {% endwith %}
-        
-        <h2> Book Appointment</h2>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% endif %}
 
-        <!-- Name input -->
-        <div data-mdb-input-init class="form-outline mb-4 mt-4">
-          
-                <label for="pet" id="form2Example1"  class="form-control">Choose a pet:
-                <select id="pet" name="pet" style="background-color: lightgray; padding: 10px; float:right; margin-right: 30px; line-height:2vh"></label>
-                    {% for pet in pets %}
-                        <option value="{{ pet }}">{{ pet.PetName }}</option>
-                    {% endfor %}
-                </select>
-                
-        </div>
+    <table class="table align-middle bg-white" id="table">
+        <thead class="bg-light">
+            <tr>
+                <th>Id</th>
+                <th>Service </th>
+                <th>PetName</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th> </th>
+            </tr>
+        </thead>
+        <tbody> 
+            {% for app in appointments %}
+            
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        {{ app.id }}
+                    </div>
+                </td>
+                <td>
+                    <p class="fw-normal mb-1">{{ app.ServiceName }}</p>
+                </td>
+                <td>{{ app.PetName }}</td>
+                <td>
+                    <span class="badge badge-success rounded-pill d-inline"
+                        style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px;">{{ app.Status
+                        }}</span>
+                </td>
 
-        <!-- Service Name input -->
-        <div data-mdb-input-init class="form-outline mb-4 mt-3">
-            <input type="text" id="form2Example1" name="ServiceName" class="form-control" />
-            <label class="form-label" for="form2Example1">Service Name </label>
-        </div>
+                <td> {{ app.Startdate }}</td>
+                <td>
+                    <button type="button" class="btn btn-link btn-sm btn-rounded" data-mdb-ripple-init
+                        data-mdb-modal-init data-mdb-target="#exampleModal" onclick="deleteAppointment('{{ app.id }}')">
+                        <i class="fas fa-trash-can" ></i>
+                    </button>
+                 
+                </td>
+            
+            </tr> 
+            {% endfor %}
+           
+        </tbody>
+    </table>
 
-        <!-- Date input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-            <input type="date" id="form2Example1" name="Date" class="form-control" />
-            <label class="form-label" for="form2Example1"></label>
-        </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete Appointment</h5>
+                    <button type="button" class="btn-close" data-mdb-ripple-init data-mdb-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/deleteAppointment" method="POST">
+                        Are you sure you want to delete the appointment?
+                        <input type="hidden" id="appIdInput" name="appid">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-mdb-ripple-init
+                                data-mdb-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" data-mdb-ripple-init>Yes, delete</button>
+                        </div>
+                    </form>
+                </div>
 
-        <div class="col-13 d-flex justify-content-around ">
-            <!-- Extra info input -->
-            <div data-mdb-input-init class="form-outline mb-4">
-                <input type="text" id="form2Example2" name="information" class="form-control" required />
-                <label class="form-label" for="form2Example2">Any other relevant information</label>
             </div>
-
-         
         </div>
-
-        <!-- Submit button -->
-        <!-- <button type="Submit"> SUBMIT </button> -->
-        <div class="add-pet">
-            <button data-mdb-ripple-init type="submit" class="btn btn-block mb-3 mt-4 pet-btn">Add Pet</button>
-        </div>
-        <!-- Register buttons -->
-
-    </form>
+    </div>
 </section>
 
+<div class="label-app-div">
+    <h4> Approved Appointments</h4>
+</div>
+
+
+<section class="bookedLists">
+
+    <table class="table align-middle bg-white" id="table">
+        <thead class="bg-light">
+            <tr>
+                <th>Id</th>
+                <th>Service </th>
+                <th>PetName</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th> </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for apps in apps %}
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        {{ apps.id }}
+                    </div>
+                </td>
+                <td>
+                    <p class="fw-normal mb-1">{{ apps.ServiceName }}</p>
+                </td>
+                <td>{{ apps.PetName }}</td>
+                <td>
+                    <span class="badge badge-success rounded-pill d-inline"
+                        style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px;">{{
+                        apps.Status}}</span>
+                </td>
+
+                <td> {{ apps.Startdate }}</td>
+                <td>
+                    <button type="button" class="btn btn-link btn-sm btn-rounded">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<script>
+    function deleteAppointment(appid) {
+        // Set the appid value in the hidden input field
+        document.getElementById('appIdInput').value = appid;
+    }
+</script>
 
 {% endblock %}

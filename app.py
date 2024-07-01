@@ -1,23 +1,33 @@
-from flask import Flask, render_template,session,redirect,abort, request,flash,g,url_for
+from flask import Flask, render_template,session,redirect,abort, request,flash,g,url_for,jsonify
 from google_auth_oauthlib.flow import Flow
 from flask_mail import Mail,Message
+from datetime import datetime
+from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, logout_user, current_user,login_required
 from flask_session import Session
-from models import Users,RegistrationForm,db,LoginForm,PetRegistrationForm,Pets
+from models import Users,db,Pets,Services,VetRoles,Vets,Admins,Appointments
+from forms import LoginForm,AddServiceForm,VetRoleForm,RegistrationForm,RegisterVetForm,AdminRegisterForm
 from random import *
 from config import Config
+from flask_paginate import Pagination, get_page_parameter
 import pathlib,os
 from werkzeug.utils import secure_filename
 from flask_bcrypt import Bcrypt     
 from googleapiclient.discovery import build 
 from pathlib import Path
-from io import BytesIO
+import io
 import base64
 import matplotlib
+from flask import send_file
+import pandas as pd
+import numpy as np
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from bcrypt import hashpw, gensalt
 import re
+import string
+import hashlib
+import random
 
 bcrypt = Bcrypt()
 otp =randint(000000,999999)
@@ -26,9 +36,14 @@ app = Flask(__name__)
 app.secret_key = 'myfishsucksmiamiaa'
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///owners.db"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable Flask-SQLAlchemy event system to avoid unnecessary overhead
 
 db.init_app(app)
+migrate = Migrate(app, db)
+
 
 # APP CONFIGURATIONS
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -52,15 +67,68 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 def set_password(Password):
     return bcrypt.generate_password_hash(Password).decode('utf-8')
         
-
 # SESSIONS MANAGER
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'  # The name of the login view
 
+def generate_random_string(length):
+    # Define the characters that will be used in the random string
+    characters = string.ascii_letters + string.digits + string.punctuation
+    # Use random.choices to select random characters from the defined set
+    random_string = ''.join(random.choices(characters, k=length))
+    return random_string
+
+# Default credentials for login/register
+DEFAULT_PROFILE_IMAGE = 'static/images/default.png'
+DEFAULT_CONTACT = ""
+DEFAULT_VET_PROFILE = 'static/images/profile-user.png'
+DEFAULT_RECOVERYMAIL = " "
+DEFAULT_STATUS = "Pending"
+DEFAULT_DURATION = " "
+DEFAULT_TIME = " "
+DEFAULT_ADDRESS = ""
+
+Pass = generate_random_string(10)
+
+def generate_unique_password(id):
+    id = 10
+    prefix = "Admin"
+    suffix = "@petco"
+    
+    # Create a unique part using a hash of the user ID
+    unique_part = hashlib.sha256(str(id).encode()).hexdigest()[:4]  # Take the first 4 characters of the hash
+    
+    # Combine prefix, unique part, and suffix to form the password
+    default_password = f"{prefix}{unique_part}{suffix}"
+    
+    return default_password
+
+def generate_unique_vetpassword(id):
+    id = 12
+    prefix = "Vet"
+    suffix = "@petco"
+    
+    # Create a unique part using a hash of the user ID
+    unique_part = hashlib.sha256(str(id).encode()).hexdigest()[:4]  # Take the first 4 characters of the hash
+    
+    # Combine prefix, unique part, and suffix to form the password
+    default_password = f"{prefix}{unique_part}{suffix}"
+    
+    return default_password
 
 @login_manager.user_loader
-def loader_user(user_id):
-    return Users.query.get(user_id)
+def load_user(user_id):
+    if user_id.startswith('admin_'):
+        user_id = user_id.split('_')[1]
+        return Admins.query.get(int(user_id))
+    elif user_id.startswith('user_'):
+        user_id = user_id.split('_')[1]
+        return Users.query.get(int(user_id))
+    elif user_id.startswith('vet_'):
+        user_id = user_id.split('_')[1]
+        return Vets.query.get(int(user_id))
+    return None
+
 
 # ROUTES 
 @app.route("/")
@@ -73,39 +141,92 @@ def home():
     return render_template("home.html")
 
 
+
 ####################### AUTHENTICATION ##################################
 # LOGIN USER
 @app.route('/login', methods=["GET","POST"])
 def login():
-    Logform = LoginForm()
-    if Logform.validate_on_submit():
-        user = Users.query.filter_by(Email=Logform.Email.data).first()
-        login_user(user) 
-        otp_str = str(otp)
-        Email = Logform.Email.data
-        EmailContent = render_template("emails/log-otp-email.html", otp=otp_str)
-        msg = Message(subject="Welcome back!", sender='iamhawiana@gmail.com', recipients=[Email])
-        msg.html = EmailContent
-
-        mail.send(msg)   
-        login_user(user)
-        flash('Email has been sent your account', 'primary')
-        return render_template ('login-verify.html', otp=otp) 
+    form = LoginForm()
+    
+     # for new admin login
+    expected_prefix = "Admin"
+    expected_prefix_vet = "Vet"
+   
+    if form.validate_on_submit():
+        Email = form.Email.data  # Retrieve email from the form
+        print(Email)
+        Password = form.Password.data
         
-        #return render_template('home.html')  # Redirect to landing instead of render_template
+        if Admins.query.filter_by(Email=Email).first():
+            user = Admins.query.filter_by(Email=Email).first()
+        elif (Users.query.filter_by(Email=Email).first()):
+            user = Users.query.filter_by(Email=Email).first()
+        elif (Vets.query.filter_by(Email=Email).first()):
+            user = Vets.query.filter_by(Email=Email).first()
+        else:
+            flash("Invalid user", "danger")
+            
+        print(user)
+        default_password = user.Password 
+        
+        if user:
+            if Password.startswith(expected_prefix) or Password.startswith(expected_prefix_vet):
+                login_user(user) 
+                return render_template("forms/reset-password.html")
+            
+            elif (user.check_password(form.Password.data)) :
+                login_user(user) 
+                otp_str = str(otp)
+                session["otp"] = otp_str
+                #session["role"] = current_user.role
+                Email = form.Email.data
+                EmailContent = render_template("emails/log-otp-email.html", otp=otp_str)
+                msg = Message(subject="Welcome back!", sender='iamhawiana@gmail.com', recipients=[Email])
+                msg.html = EmailContent
 
-    return render_template("forms/SignIn.html", Logform=Logform)
+                mail.send(msg)  #sends the email 
+            
+                flash('Email has been sent your account', 'primary')
+                return render_template ('login-verify.html', otp=otp) 
+        
+            else:
+                flash ("Invalid password", "danger")
+                
+        else:
+            flash("Email is invalid","danger")
+        
+    return render_template('forms/SignIn.html', form=form)  # Redirect to landing instead of render_template
 
-@app.route('/login-check/<otp>', methods=["GET","POST"])
-def logchecker(otp):
+@app.route("/loginchecker", methods=["POST","GET"])
+def logchecker():
+    otp = session.get("otp")
+    #current_user.role = session.get("role")
     if request.method == "POST":
         code = request.form["user-otp"]
-        if code == str(otp):
-            # flash("Account created", "success")
-            return render_template("home.html") #reset-password.html
+        if code == otp:
+            if current_user.role == "vet":
+                return redirect(url_for('vetHome'))
+            elif (current_user.role == "admin"):
+                return redirect(url_for("admin"))
+            elif (current_user.role == "user"):
+                return redirect(url_for("home"))
         else:
-            flash ('invalid otp','danger')
-
+            flash("Otp does not match", "danger")
+        
+# @app.route('/login-check/<otp>', methods=["GET","POST"])
+# def logchecker(otp):
+#     print(current_user.role)
+#     if request.method == "POST":
+#         code = request.form["user-otp"]
+#         if code == str(otp):
+#             if current_user.role == "user":
+#                 return redirect(url_for("home"))
+#             elif current_user.role == "vet":
+#                 return redirect(url_for("vetHome"))
+#             elif current_user.role == "admin":
+#                 return redirect(url_for("admin"))
+            
+    #return render_template("login-verify.html")
 
 # REGISTER USER
 @app.route('/register', methods=["GET","POST"])
@@ -113,8 +234,6 @@ def register():
     Regform = RegistrationForm()
     if Regform.validate_on_submit():
             DEFAULT_PROFILE_IMAGE = 'static/images/default.png'
-            DEFAULT_CONTACT = ''
-            DEFAULT_ADDRESS = ''
             user = Users(Fullname=Regform.Fullname.data, Email=Regform.Email.data,Password=Regform.Password.data)
             user.Profile_pic = DEFAULT_PROFILE_IMAGE  # Assign default image path
             user.Contact =DEFAULT_CONTACT
@@ -138,7 +257,7 @@ def register():
 
     return render_template("forms/SignUp.html", Regform = Regform)
 
-@app.route('/auth-checker/<otp>', methods=["GET","POST"])
+@app.route('/auth-checker/<otp>', methods=["GET","POST"]) #verify to reset password for user
 def checker(otp):
     if request.method == "POST":
         code = request.form["user-otp"]
@@ -160,22 +279,55 @@ def dis():
     return render_template('forms/otp.html')
 
 
-#FORGOT PASSWORD AND RESET
-@app.route('/reset', methods=["GET","POST"])
+# #FORGOT PASSWORD 
+@app.route('/forgotPassword', methods=["GET","POST"])
 def reset(): 
     if request.method == "POST":
-        Email = current_user.Email
+        Email = session.get('reset_email')
         # Email = session.get('reset_email')
-        Password = request.form['New_Password']
+        Password = request.form['Password']
         New_Password = request.form['Confirm_Password']  
+        
+    user = Admins.query.filter_by(Email=Email).first()
+    if not user:
         user = Users.query.filter_by(Email=Email).first()
-        #user = Users.query.filter_by(Email=self.Email.data).first()
+    if not user:
+        user = Vets.query.filter_by(Email=Email).first()
+        
+    if Password == New_Password:
+        user.Password = bcrypt.generate_password_hash(Password).decode('utf-8')
+        db.session.commit()
+        flash("Password updated successfully!", "primary")
+        return redirect(url_for("login")) #
+                
+    else:
+        flash("Password not match")
+        return redirect(url_for('login'))
+ 
+                
+    return render_template("forms/reset-password.html")
+
+# RESET PASSWORD
+@app.route('/resetPassword', methods=["GET","POST"])
+def resetPassword(): 
+    if request.method == "POST":
+        print(current_user)
+        if current_user.is_authenticated:
+            Email = current_user.Email
+            Password = request.form["Password"]
+            New_Password = request.form['Confirm_Password'] 
+    
         if Password == New_Password:
-            user.Password = bcrypt.generate_password_hash(Password).decode('utf-8')
+            current_user.Password = bcrypt.generate_password_hash(Password).decode('utf-8')
             db.session.commit()
             flash("Password updated successfully!", "primary")
-            return redirect(url_for("homee")) #
-                
+    
+            if current_user.role == 'admin':
+                return redirect(url_for('admin'))
+            elif current_user.role == 'user':
+                return redirect(url_for('home'))
+            elif current_user.role == 'vet':
+                return redirect(url_for('vetHome'))    
         else:
             flash("Password not match")
             return redirect(url_for('login'))
@@ -185,7 +337,7 @@ def reset():
     return render_template("forms/reset-password.html")
 
 
-@app.route('/reset-email', methods=["GET","POST"])
+@app.route('/reset-email', methods=["GET","POST"]) #Sends email notification to reset password
 def res_email():
     if request.method=="POST":
         Email = request.form['Email']
@@ -202,20 +354,19 @@ def res_email():
    
     return render_template("forms/reset-pass.html")
 
-@app.route('/conf_password', methods=["GET","POST"])
+@app.route('/confirm_password', methods=["GET","POST"])
 def cdonf():
     if request.method == "POST":
         auth = request.form["user-otp"]
-        print(auth)
+        flash("Password updated", "success")
+    else:
+        flash("Wrong otp", "danger")
+    
     return render_template('forms/forgot-password.html')
 
 @app.route('/forgot', methods=["GET","POST"])
 def forgot():
     return render_template("forms/forgot-password.html")
-
-@app.route('/verify', methods=["GET","POST"])
-def tryi():
-    return render_template("verify.html")
 
 @app.route("/auth", methods=["GET", "POST"])
 def autho():
@@ -223,6 +374,7 @@ def autho():
 
 @app.route("/logout")
 def logout():
+    # logout_user()
     session.clear()
     return redirect (url_for("login"))
 
@@ -290,6 +442,7 @@ def authenticate():
 
 @app.route("/home")
 def google_auth_callback():
+    
     #flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(client_secrets_file, scopes=SCOPES)
     flow.redirect_uri = url_for('google_auth_callback', _external=True)
     authorization_response = request.url
@@ -305,12 +458,13 @@ def google_auth_callback():
     session['user'] = user_info
     print (user_info)
 
-    user = Users(Fullname=user_info["name"], Email=user_info["email"], Password="dummyinfo")
+    Password = set_password("dummyinfo")
+    user = Users(Fullname=user_info["name"], Email=user_info["email"], Password=Password)
     db.session.add(user)
     db.session.commit()
 
     # Return to main page
-    return render_template("home.html")
+    return redirect(url_for("home"))
 
 
 #################### LOGIN WITH GOOGLE ###########################
@@ -347,26 +501,27 @@ def callback():
     flow.fetch_token(authorization_response=authorization_response)
     credentials = flow.credentials
     session['credentials'] = credentials_to_dict(credentials)
-
+   
     # Use the credentials to obtain user information and save it to the session
     oauth2_client = build('oauth2','v2',credentials=credentials)
     user_info= oauth2_client.userinfo().get().execute()
     session['user'] = user_info
-
-    if Users.query.filter_by(Email=user_info['email']).first():
+   
+    user = Users.query.filter_by(Email=user_info['email']).first()
+    if user:
         #flash("Not registered in the database", "danger")
 
-        otp_str = str(otp)
-        Email = user_info['email']
-        EmailContent = render_template("emails/google-email.html", otp=otp_str)
-        msg = Message(subject="Welcome to PetCo", sender='PetCo', recipients=[Email])
-        msg.html = EmailContent
+        # otp_str = str(otp)
+        # Email = user_info['email']
+        # EmailContent = render_template("emails/google-email.html", otp=otp_str)
+        # msg = Message(subject="Welcome to PetCo", sender='PetCo', recipients=[Email])
+        # msg.html = EmailContent
 
-        mail.send(msg)   
-
+        # mail.send(msg)   
+        login_user(user)
         # flash('OTP has been sent your account', 'primary')
         # return render_template ('google-otp.html', otp=otp) 
-        return render_template('home.html')
+        return redirect(url_for('home'))
     else:
         flash("Account does not exist","danger")
         return redirect(url_for('register'))
@@ -375,27 +530,6 @@ def callback():
 
 ############################################################################
 
-
-
-@app.route('/reg-reset',methods=["GET","POST"]) #reset password after user registration
-def newreset():
-    if current_user.is_authenticated:
-        if request.method == "POST":
-            p1 = request.form['New_Password']
-            p2 = request.form['Confirm_Password']  
-            if p1 == p2:
-                current_user.Password = current_user.set_password(p1)
-                db.session.commit()
-                return redirect(url_for('login'))
-            else:
-                flash("Password not match")
-            # return "Password reset successfully"
-        else:
-            flash("Not validating",'danger')
-    else:
-        return redirect(url_for('login'))
-
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
@@ -403,7 +537,7 @@ def allowed_file(filename):
 
 @app.route('/userProfile', methods=['POST', 'GET'])
 def uploadProfile():
-    
+    pets = Pets.query.filter_by(OwnerId=current_user.id).first()
     # Profile picture logic
     if request.method == 'POST':
         
@@ -414,11 +548,11 @@ def uploadProfile():
         file = request.files['file']
         
         if file.filename == '':
-            flash('No file was selected')
+            flash('No file was selected',"danger")
             return redirect(request.url)
         else: 
             print(file.filename) #Dogfinal.jpg
-            file.filename = f"{current_user.id}_{file.filename}" # re-name the image to match petid
+            file.filename = f"{current_user.id}_{file.filename}" # re-name the image to match id
             print(file.filename)
         
         if file and allowed_file(file.filename):
@@ -432,22 +566,29 @@ def uploadProfile():
             
             current_user.Profile_pic = image_path
             db.session.commit()
+            if (current_user.role == "user"):
+                    return render_template('userProfile.html',filename=filename)
+            elif(current_user.role == "admin"):
+                return render_template('admin/adminProfile.html', filename=filename)
+            else:
+                return render_template('vets/vetProfile', filename=filename)
             
-            try:
-                file.save(save_path)
+        try:
+            file.save(save_path)
             
-                flash('Image has been successfully uploaded')
-               # image_url = url_for('uploaded_file', filename=filename)
-            except Exception as e:
-                flash(f"An error occurred while saving the file: {e}")
-                print(f"Error: {e}")  # Debug statement
+            flash('Image has been successfully uploaded',"success")
+              
+                
+        except Exception as e:
+            flash(f"An error occurred while saving the file: {e}")
+            print(f"Error: {e}")  # Debug statement
             
-            return render_template('userProfile.html',filename=filename)
+            
         else:
             flash('Allowed media types are - png, jpg, jpeg, gif')
             return redirect(request.url)
     
-    return render_template('userProfile.html')
+    return render_template('userProfile.html', pets = pets)
 
 @app.route('/uploads/<filename>')
 def display_profile(filename):
@@ -456,7 +597,7 @@ def display_profile(filename):
 def is_valid_kenyan_phone_number(phone_number):
     # Regular expression to match Kenyan phone numbers
     # Valid format: 10 digits starting with 07, 01, 07x, or 01x
-    pattern = r'^(07\d{8}|01\d{8}|+254\d{7}|01\d{7})$'
+    pattern = r'^(07\d{8}|01\d{8}|254\d{9}|01\d{7})$'
 
     # Check if the phone number matches the pattern
     if re.match(pattern, phone_number):
@@ -492,35 +633,12 @@ def updateProfile():
     return redirect(url_for('uploadProfile'))
 
 
-# @app.route('/pet-list')
-# def display_pet_list():
-#     user = current_user.id
-#     pets = Pets.query.filter_by(OwnerId=user).all()
-#     if len(pets) == 1:
-#         "you have one pet"
-#     return render_template ("userProfile.html", pets = pets)
-
-
 @app.route('/delete-profile-picture', methods=['POST']) #Delete pet owner profile picture
 def delete_profile_picture():
     current_user.Profile_pic = None 
     db.session.commit()
     return redirect(url_for('uploadProfile'))
 
-
-@app.route('/bookAppointment', methods=['POST', 'GET'])  #Book appointment
-def book_appointment():
-    user = current_user.id
-    pets = Pets.query.filter_by(OwnerId=user).all()
-    
-    if len(pets) == 0:
-        flash("You have no pets registered", "danger")
-    # if request.method == 'POST':
-    #     selected_pet = request.form['pet']
-    #     # Process the selected pet here
-    #     return f'Selected pet: {selected_pet}'
-
-    return render_template('forms/appointments.html',  pets=pets)
 
 
 ##################### PET MODULE ################################
@@ -548,6 +666,9 @@ def addPet():
 @app.route('/viewPet',  methods=["POST","GET"])    #view list of pets
 def viewPet():
     user_pets = Pets.query.filter_by(OwnerId=current_user.id).all()
+    if len(user_pets) == 0 :
+        return render_template("petForms/viewPets/nopets.html")
+    
     return render_template('petForms/viewPets/viewPets.html', user_pets=user_pets)
 
 @app.route('/view-pet-profile/<int:first_pet>')    # view edit pet profile
@@ -564,14 +685,14 @@ def uplProfile(pet):
     pet = Pets.query.filter_by(PetID=pet).first()
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file part')
+            flash('No file part', "danger")
             return redirect(request.url)
          
         file = request.files['file']
         print(file)
         
         if file.filename == '':
-            flash('No file was selected')
+            flash('No file was selected',"danger")
             return redirect(request.url)
         else:
             print(file.filename) #Dogfinal.jpg
@@ -592,7 +713,7 @@ def uplProfile(pet):
             try:
                 file.save(save_path)
             
-                flash('Image has been successfully uploaded')
+                flash('Image has been successfully uploaded',"success")
                # image_url = url_for('uploaded_file', filename=filename)
             except Exception as e:
                 flash(f"An error occurred while saving the file: {e}")
@@ -612,25 +733,335 @@ def delete_pet_picture(pet):
     return redirect(url_for('uploadPetPic'))
 
 
+@app.route("/appointmentInfo")
+def appointmentInfo():
+    appointments = Appointments.query.filter_by(OwnerId=current_user.id, Status = 'Pending').all()
+    if len(appointments) == 0:
+        return render_template("forms/appointments.html", appointments = appointments)
+    
+    apps = Appointments.query.filter_by(OwnerId=current_user.id, Status='Approved').all()
+    
+    return render_template("forms/appointments.html", appointments = appointments, apps=apps)
+
+@app.route("/appointments", methods=['GET','POST'])
+def bookappointment():
+    services = Services.query.all()
+    pets = Pets.query.filter_by(OwnerId = current_user.id)
+    
+    if request.method == 'POST':
+        ServiceName = request.form['ServiceName']
+        PetName = request.form['PetName']
+        OwnerId = current_user.id
+        Date = request.form['StartDate']
+        RelevantInfo = request.form['RelevantInfo']
+      
+        
+        if 'Agree' not in request.form:
+            flash("You must agree to the terms and conditions.", "danger")
+            return render_template("forms/appointments.html", services=services, pets=pets)
+        
+            
+        appointment_date = datetime.strptime(Date, '%Y-%m-%d')
+        if appointment_date <= datetime.now():
+            flash("The appointment date must be in the future.", "danger")
+        else:
+            appointment = Appointments(ServiceName = ServiceName, PetName = PetName, OwnerId = OwnerId,Startdate = Date, 
+                    OtherInfo=RelevantInfo,Status = DEFAULT_STATUS, Time = DEFAULT_TIME,Duration = DEFAULT_DURATION)
+           
+            db.session.add(appointment)
+            db.session.commit()
+            flash("Appointment booked!","success")
+          
+  
+        
+    return render_template("forms/bookApp.html", services = services, pets=pets)
+
+
+@app.route("/deleteAppointment", methods=['GET','POST'])
+def deleteAppointment():
+    appid = request.form.get('appid')
+    print(appid)
+    if not appid:
+        return ("id not found")
+    else:
+        appointment = Appointments.query.filter_by(id = appid).first()
+        db.session.delete(appointment)
+        db.session.commit() 
+   
+        return redirect(url_for('appointmentInfo'))
+    
+   
+
 
 ######################## VET MODULE ############################
 
+@app.route("/vetHome")
+def vetHome():
+    
+    role = current_user.VetRole
+
+    # Assuming Services and Appointments are your SQLAlchemy model classes
+    serviceProvided = Services.query.filter_by(VetRole=role).first()
+
+    if serviceProvided:
+        identified_service = serviceProvided.ServiceName
+       
+        # Retrieve appointments for the identified service
+        bookings = Appointments.query.filter_by(ServiceName=identified_service, Status='Pending').all()
+
+        for book in bookings:
+            if book.Status == 'Pending':
+            # Process bookings into a list for rendering
+                bookings_list = []
+                for appointment in bookings:
+                    bookings_list.append({
+                        "id": appointment.id,
+                        "name": appointment.PetName,
+                        "date": appointment.Startdate,
+                        "info": appointment.OtherInfo,
+                        "status": appointment.Status
+                    })
+        
+    
+    return render_template("vets/vetHome.html", bookings = bookings_list)
+
+@app.route("/vetProfile",methods=['POST', 'GET'])
+def vetProfile():
+    # Profile picture logic
+    if request.method == 'POST':
+        
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+         
+        file = request.files['file']
+        
+        if file.filename == '':
+            flash('No file was selected',"danger")
+            return redirect(request.url)
+        else: 
+            print(file.filename) #Dogfinal.jpg
+            file.filename = f"{current_user.id}_{file.filename}" # re-name the image to match id
+            print(file.filename)
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(Config.UPLOAD_FOLDER, filename)
+            print(f"Saving file to: {save_path}")  # Debug statement
+            
+            #Edit path to be stored in the database
+            db_path = os.path.join('static', 'uploads', filename)
+            image_path = db_path.replace('\\', '/')
+            
+            current_user.Profile_pic = image_path
+            db.session.commit()
+                
+            try:
+                file.save(save_path)
+                
+                flash('Image has been successfully uploaded',"success")
+                
+                    
+            except Exception as e:
+                flash(f"An error occurred while saving the file: {e}")
+                print(f"Error: {e}")  # Debug statement
+                
+            
+        else:
+            flash('Allowed media types are - png, jpg, jpeg, gif')
+            return redirect(request.url)
+    
+    return render_template("vets/vetProfile.html")
+
+@app.route('/updateVet', methods=['POST', 'GET']) # view User profile
+def updateVet():
+    user = Vets.query.filter_by(id=current_user.id).first()
+
+    if not user:
+        flash("User not found!", "danger")
+        return redirect(url_for('updateVet'))
+
+    if request.method == "POST":
+        Fullname = request.form["Fullname"]
+        Email = request.form["Email"]
+        Contact = request.form["Contact"]
+        RecoveryEmail = request.form["RecoveryEmail"]
+        
+        if is_valid_kenyan_phone_number(Contact) or " ":
+            user.VetName = Fullname
+            user.Email = Email
+            user.Contact = Contact
+            user.RecoveryEmail = RecoveryEmail
+           
+            db.session.commit()
+            flash('Details updated!', 'success')    
+        else:
+            flash("Invalid phone number","danger")
+    else:
+        flash("Form not receiving data", "danger")
+
+    return redirect(url_for('vetProfile'))
 
 
+# @app.route('/', methods=['GET', 'POST'])
+@app.route('/viewPets/<int:page>', methods=["GET", "POST"])
+def viewPets(page=1):
+    per_page = 5
+
+    # Paginate the Pets query
+    pets_pagination = Pets.query.paginate(page=page, per_page=per_page, error_out=False)
+    pet_details = []
+
+    # Fetch the owner for each pet in the current page
+    for pet in pets_pagination.items:
+        owner = Users.query.filter_by(id=pet.OwnerId).first()
+        pet_details.append({
+            "id": pet.PetID,
+            "name": pet.PetName,
+            "type": pet.Type,
+            "species": pet.Species,
+            "age": pet.Age,
+            "gender": pet.Gender,
+            "ownerFullname": owner.Fullname if owner else "Unknown"
+        })
+    
+    # Handle POST request for search functionality
+    if request.method == "POST" and 'tag' in request.form:
+        search_query = request.form['tag']
+        print(f"Search query: {search_query}")
+
+        # Perform search by pet name (case-insensitive)
+        pets_search = Pets.query.filter(Pets.PetName.ilike(f"%{search_query}%"))
+
+        # Paginate the search results
+        pet_details = pets_search.paginate(page=page, per_page=per_page, error_out=False)
+
+        results = []
+        print(f"Matching pets: {pet_details.items}")
+        for pet in pet_details.items:
+           # petname = Pets.query.filter_by(id=pet.OwnerId).first()
+            results.append({
+                "id": pet.PetID,
+                "name": pet.PetName,
+                "type": pet.Type,
+                "species": pet.Species,
+                "age": pet.Age,
+                "gender": pet.Gender,
+                "ownerFullname": owner.Fullname if owner else "Unknown"
+            })
+
+        return render_template('vets/viewPets.html', pet_details=results, pagination=pet_details)
+
+    return render_template("vets/viewPets.html", pet_details=pet_details, pagination=pets_pagination)
 
 
+@app.route('/appointmentApproval', methods=["GET","POST"])
+def appStatus():
+    
+    if request.method == "POST":
+        appid = request.form.get('appid')
+        time = request.form['Time']
+        duration = request.form['Duration']
+        status ="Approved"
+        print(time)
+        print(duration)
+        print(appid)
+        
+        try:
+            selected_time = datetime.strptime(time, '%H:%M').time()
+            start_time = time(hour=7)  # 7 AM
+            end_time = time(hour=18)    # 6 PM
+
+            if start_time <= selected_time < end_time:
+                # Time is within the allowed range, proceed with updating appointment
+                appointment = Appointments.query.filter_by(id=appid).first()
+                if appointment:
+                    appointment.Status = status
+                    appointment.Time = time
+                    appointment.Duration = duration
+                    db.session.commit()
+                    flash('Appointment approved!', "success")
+            
+            else:
+                flash('Select working hours only', 'danger')
+            
+                
+        except ValueError:
+            return "Invalid time format"
+            
+    
+    return redirect(url_for('vetHome'))
 
 
+@app.route('/approvedAppointments/<int:page>', methods=["GET", "POST"])
+def viewApproved(page=1):
+    per_page = 5
+
+    # Paginate the Pets query
+    apps_pagination = Appointments.query.filter_by(Status="Approved") \
+                                    .paginate(page=page, per_page=per_page, error_out=False)
+    
+    #apps_pagination = Appointments.query.paginate(page=page, per_page=per_page, error_out=False)
+    app_details = []
+    
+    # Fetch the approved appointments
+    for app in apps_pagination.items:
+        #owner = Appointments.query.filter_by(id = approvedIds).first()
+        app_details.append({
+            "id": app.id,
+            "servicename": app.ServiceName,
+            "petname": app.PetName,
+            "date": app.Startdate,
+            "time": app.Time,
+            "duration": app.Duration,
+        })
+    
+    # Handle POST request for search functionality
+    if request.method == "POST" and 'tag' in request.form:
+        search_query = request.form['tag']
+        print(f"Search query: {search_query}")
+
+        # Perform search by pet name (case-insensitive)
+        apps_search = Appointments.query.filter(Appointments.PetName.ilike(f"%{search_query}%"),  Appointments.Status == 'Approved')
+        
+
+        # Paginate the search results
+        app_details = apps_search.paginate(page=page, per_page=per_page, error_out=False)
+
+        results = []
+        
+        for app in app_details.items:
+           # petname = Pets.query.filter_by(id=pet.OwnerId).first()
+            results.append({
+            "id": app.id,
+            "servicename": app.ServiceName,
+            "petname": app.PetName,
+            "date": app.Startdate,
+            "time": app.Time,
+            "duration": app.Duration,
+        })
+        return render_template('vets/approvedAppointments.html', app_details=results, pagination=app_details)
+
+        
+
+    return render_template("vets/approvedAppointments.html", app_details=app_details, pagination=apps_pagination)
 
 
+@app.route('/calendar')
+def approvedCalendar():
+    approved_apps = Appointments.query.filter_by(Status="Approved").all()
 
+    appointments = []
+    for app in approved_apps:
+        appointments.append({
+            'id': app.id,
+            'title': f'{app.ServiceName} - {app.PetName}',
+            'start': app.Startdate,  # Assuming Startdate is in ISO format (YYYY-MM-DD)
+            'time': app.Time,         # Assuming Time is in HH:MM format
+            'duration': app.Duration  # Assuming Duration is in minutes
+        })
 
-
-
-
-
-
-
+    return jsonify(appointments)
 
 
 
@@ -643,56 +1074,443 @@ def delete_pet_picture(pet):
 
 
 ######################### ADMIN OPERATIONS ############################
+admin_pass = generate_random_string(7)
+
+@app.route("/addAdmin", methods=['POST', 'GET'])
+def addAdmin():
+    form = AdminRegisterForm()
+    default_password = generate_unique_password(10)
+    Hash = set_password(default_password)
+    if form.validate_on_submit():
+        admin = Admins(Firstname=form.Firstname.data, Lastname=form.Lastname.data, Email = form.Email.data,Password = Hash,Contact= DEFAULT_CONTACT,RecoveryEmail = DEFAULT_RECOVERYMAIL,Profile_pic= DEFAULT_PROFILE_IMAGE)
+        db.session.add(admin)
+        db.session.commit()
+        
+        EmailContent = render_template("emails/registervet.html", key=default_password)
+        msg = Message(subject="Welcome Admin!", sender='iamhawiana@gmail.com', recipients=[form.Email.data])
+        msg.html = EmailContent
+
+        mail.send(msg)   
+        flash("Email sent to vet","primary")
+            #return render_template ('vet-verify.html', otp=key) 
+    else:
+        flash('Invalid data', 'danger')
+        
+    return render_template('soft-ui-dashboard-main/pages/addAdmin.html', form = form)
+
+def verify_password(input_password, Password):
+    return bcrypt.check_password_hash(Password, input_password)
+
+
+@app.route('/authadmin/<otp>', methods=["GET","POST"])
+def newAdmin(otp):
+    name = current_user.Firstname
+    if request.method == "POST":
+        code = request.form["user-input"]
+        if code == str(otp):
+            return render_template("/soft-ui-dashboard-main/pages/dashboard.html", name = name) 
+        else:
+            return('Invalid key','danger')
+    
+    return render_template("admin/verify-admin.html")
+
+
+
+# @app.route('/', methods=['GET', 'POST'])
+@app.route('/viewVets/<int:page>', methods=["GET", "POST"])
+def viewVets(page=1):
+    per_page = 10
+
+    # Paginate the Pets query
+    vets_pagination = Vets.query.paginate(page=page, per_page=per_page, error_out=False)
+    vet_details = []
+
+    # Fetch the owner for each pet in the current page
+    for vet in vets_pagination.items:
+        vet_details.append({
+            "id": vet.id,
+            "role": vet.VetRole,
+            "name": vet.VetName,
+            "email": vet.Email
+        })
+    
+    # Handle POST request for search functionality
+    if request.method == "POST" and 'tag' in request.form:
+        search_query = request.form['tag']
+        print(f"Search query: {search_query}")
+
+        # Perform search by pet name (case-insensitive)
+        vets_search = Vets.query.filter(Vets.VetName.ilike(f"%{search_query}%"))
+
+        # Paginate the search results
+        vet_details = vets_search.paginate(page=page, per_page=per_page, error_out=False)
+
+        results = []
+        print(f"Matching vets: {vet_details.items}")
+        for vet in vet_details.items:
+           # petname = Pets.query.filter_by(id=pet.OwnerId).first()
+            results.append({
+                "id": vet.id,
+                "role": vet.VetRole,
+                "name": vet.VetName,
+                "email": vet.Email,
+            })
+
+        return render_template('soft-ui-dashboard-main/pages/viewVets.html', pet_details=results, pagination=vet_details)
+
+    return render_template("soft-ui-dashboard-main/pages/viewVets.html", pet_details=vet_details, pagination=vets_pagination)
+
+
+# @app.route('/', methods=['GET', 'POST'])
+@app.route('/viewAllAppointments/<int:page>', methods=["GET", "POST"])
+def viewAllAppointments(page=1):
+    per_page = 10
+
+    # Paginate the Pets query
+    app_pagination = Appointments.query.paginate(page=page, per_page=per_page, error_out=False)
+    app_details = []
+
+    # Fetch the owner for each pet in the current page
+    for apps in app_pagination.items:
+        owner = Users.query.filter_by(id=apps.OwnerId).first()
+        app_details.append({
+            "id": apps.id,
+            "servicename": apps.ServiceName,
+            "petname": apps.PetName,
+            "owner": owner.Fullname if owner else "Unknown",
+            "date" :apps.Startdate,
+            "status":apps.Status
+        })
+    
+        
+    # Handle POST request for search functionality
+    if request.method == "POST" and 'tag' in request.form:
+        search_query = request.form['tag']
+        print(f"Search query: {search_query}")
+
+        # Perform search by pet name (case-insensitive)
+        app_search = Appointments.query.filter(Appointments.PetName.ilike(f"%{search_query}%"))
+
+        # Paginate the search results
+        app_details = app_search.paginate(page=page, per_page=per_page, error_out=False)
+
+        results = []
+        print(f"Matching vets: {app_details.items}")
+        for apps in app_details.items:
+            owner = Users.query.filter_by(id=apps.OwnerId).first()
+            results.append({
+            "id": apps.id,
+            "servicename": apps.ServiceName,
+            "petname": apps.PetName,
+            "owner": owner.Fullname if owner else "Unknown",
+            "date" :apps.Startdate   
+        })
+    
+
+        return render_template('soft-ui-dashboard-main/pages/viewAllAppointments.html', app_details=results, pagination=app_details)
+
+    return render_template("soft-ui-dashboard-main/pages/viewAllAppointments.html", app_details=app_details, pagination=app_pagination)
+
+
+
+
+
+
 @app.route("/adminHome")
 def admin():
-    fig, ax = plt.subplots(figsize=(4, 3))
-    fruits = ['apple', 'blueberry', 'cherry', 'orange']
-    counts = [40, 100, 30, 55]
-    bar_labels = ['red', 'blue', '_red', 'orange']
-    bar_colors = ['tab:red', 'tab:blue', 'tab:red', 'tab:orange']
+    # Query the database to get data
+    vets = Vets.query.all()
+    users = Users.query.all()
+    pets = Pets.query.all()
+    pet_count = len(pets)
+    vet_count =(len(vets))
+    owner_count = len(users)
+    approved_appointments = Appointments.query.filter_by(Status='Approved').all()
+    app_count = len(approved_appointments)
 
-    ax.bar(fruits, counts, label=bar_labels, color=bar_colors)
-    ax.set_ylabel('Fruit supply')
-    ax.set_title('Fruit supply by kind and color')
-    ax.legend(title='Fruit color')
+        
+    types = [pet.Type for pet in pets]
+    type_counts = {t: types.count(t) for t in set(types)}
+    total_pets = len(types)  # Total number of pets
 
-    # Save bar chart to a temporary file
-    bar_img = BytesIO()
-    plt.savefig(bar_img, format='png', dpi=100)
-    bar_img.seek(0)
-    bar_plot_url = base64.b64encode(bar_img.getvalue()).decode()
-    plt.close()
+    # Calculate percentages
+    percentages = {t: (count / total_pets) * 100 for t, count in type_counts.items()}
 
-    # Create the pie chart
-    labels = 'Birds', 'Cats', 'Dogs', 'Guinea Pig'
-    sizes = [15, 30, 45, 10]
+    # Matplotlib code to generate pie chart
+    fig, ax = plt.subplots(figsize=(6, 4), subplot_kw=dict(aspect="equal"))
 
-    fig, ax = plt.subplots()
-    ax.pie(sizes, labels=labels, autopct='%1.1f%%')
-    # ax.set_title('Pie chart')
+    labels = list(type_counts.keys())
+    values = list(type_counts.values())
+
+    wedges, texts, autotexts = ax.pie(values, autopct='%1.1f%%', wedgeprops=dict(width=0.6), startangle=-40)
+
+    bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.75)
+    kw = dict(arrowprops=dict(arrowstyle="-"),
+              bbox=bbox_props, zorder=0, va="center")
+
+    for i, p in enumerate(wedges):
+        ang = (p.theta2 - p.theta1)/2. + p.theta1
+        y = np.sin(np.deg2rad(ang))
+        x = np.cos(np.deg2rad(ang))
+        horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
+        connectionstyle = f"angle,angleA=0,angleB={ang}"
+        kw["arrowprops"].update({"connectionstyle": connectionstyle})
+        ax.annotate(labels[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y),
+                    horizontalalignment=horizontalalignment, **kw)
+
+    # ax.set_title("Distribution of Pet Types")
+
+    # Save the plot to a temporary file
+    plot_file = '/static/images/plot.png'  # Adjust the path as needed
+    plt.savefig('.' + plot_file)
+
+    approved_appointments = Appointments.query.filter_by(Status='Approved').all()
+
+    # Extract service names and any other relevant data for plotting
+    service_names = [appointment.ServiceName for appointment in approved_appointments]
+    appointment_dates = [datetime.strptime(appointment.Startdate, '%Y-%m-%d').date() for appointment in approved_appointments]
     
-    # Save pie chart to a temporary file
-    pie_img = BytesIO()
-    plt.savefig(pie_img, format='png', dpi=100)
-    pie_img.seek(0)
-    pie_plot_url = base64.b64encode(pie_img.getvalue()).decode()
+    # Prepare data for plotting
+    unique_services = list(set(service_names))
+    service_counts = [service_names.count(service) for service in unique_services]
+
+    # Plotting with Matplotlib
+    plt.figure(figsize=(6, 4)) #x, y
+    plt.plot(unique_services, service_counts, marker='o', linestyle='-', color='b')
+    # plt.title('Service Distribution of Approved Appointments')
+    plt.xlabel('Service Name')
+    plt.ylabel('Number of Appointments')
+    plt.xticks(rotation=10)
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Save the plot to a file or display it directly in Flask
+    plot_path = 'static/images/service_distribution.png'
+    plt.savefig(plot_path)  # Save the plot to a file
     plt.close()
 
-    return render_template('soft-ui-dashboard-main/pages/dashboard.html', bar_plot_url=bar_plot_url, pie_plot_url=pie_plot_url)
+    # Pass the path of the saved plot to the template
+    # return render_template('line_chart.html', plot_path=plot_path)
 
-@app.route("/addServices")
+    return render_template('soft-ui-dashboard-main/pages/dashboard.html',vets=vets, plot_file=plot_file, pet_count = pet_count, 
+                           app_count = app_count, owner_count = owner_count, vet_count= vet_count, approved_appointments = approved_appointments, plot_path=plot_path)
+
+
+@app.route("/adminProfile", methods=['POST', 'GET'])
+def adminProfile():
+    return render_template("admin/adminProfile.html")
+
+@app.route('/updateAdmin', methods=['POST', 'GET']) # view User profile
+def updateAdmin():
+    user = Admins.query.filter_by(id=current_user.id).first()
+
+    if not user:
+        flash("User not found!", "danger")
+        return redirect(url_for('uploadProfile'))
+
+    if request.method == "POST":
+        Firstname = request.form["Firstname"]
+        Lastname = request.form["Lastname"]
+        Email = request.form["Email"]
+        RecoveryEmail = request.form["RecoveryEmail"]
+        Contact = request.form["Contact"]
+        
+        if is_valid_kenyan_phone_number(Contact) or " ":
+            user.Firstname = Firstname
+            user.Lastname = Lastname
+            user.Email = Email
+            user.RecoveryEmail = RecoveryEmail
+            user.Contact = Contact
+
+            db.session.commit()
+            flash('Details updated!', 'success')    
+        else:
+            flash("Invalid phone number","danger")
+    else:
+        flash("Form not receiving data", "danger")
+
+    return redirect(url_for('adminProfile'))
+
+
+@app.route("/addServices", methods=['POST', 'GET'])
 def addServices():
-    return render_template('soft-ui-dashboard-main/pages/addServices.html')
+    AddService = AddServiceForm()
+    roles = VetRoles.query.all() #get all the services
+    
+    # Create a list of tuples (id, role name) for SelectField choices
+    AddService.VetRole.choices = [(str(role.VetRoleID), role.VetRoleName) for role in roles]
+    
+    role_id = AddService.VetRole.data
+    role = VetRoles.query.get(role_id)
+    if AddService.validate_on_submit():
+        service = Services(ServiceName=AddService.ServiceName.data, VetRole=role.VetRoleName,Description=AddService.Description.data,Cost=AddService.Cost.data )
+        print(service)
+       
+        db.session.add(service)
+        db.session.commit()
+        flash("Service added successfully", "success")
+        
+    return render_template('soft-ui-dashboard-main/pages/addServices.html',roles=roles, AddService = AddService)
+    
 
 
-@app.route("/addVet")
+@app.route("/addVetRole", methods=['POST', 'GET'])
+def addVetRole():
+    AddVRole = VetRoleForm()
+    print(AddVRole.VetRoleName.data) #check if the form is receiving data
+    print(AddVRole.Description.data)
+    if AddVRole.validate_on_submit():
+        vetrole = VetRoles(VetRoleName=AddVRole.VetRoleName.data, Description=AddVRole.Description.data )
+        db.session.add(vetrole)
+        db.session.commit()
+        flash("Vet role added", "success")
+    # else:
+    #     flash('Form not validating', 'success')
+        
+    return render_template('soft-ui-dashboard-main/pages/addVetRole.html', AddVRole = AddVRole)
+
+@app.route('/download_csv', methods=['POST'])
+def download_csv():
+    format = request.form['format']
+
+    # Fetch data from Appointments table
+    appointments = Appointments.query.all()
+    data = [{'ID': appointment.id,
+             'Service': appointment.ServiceName,
+             'Pet name': appointment.PetName,
+             'OwnerID': appointment.OwnerId,
+             'Date': appointment.Startdate}  # Format date as needed
+            for appointment in appointments]
+
+    # Convert data to pandas DataFrame
+    df = pd.DataFrame(data)
+    
+      # Check and convert Date column to datetime if it's not already
+    if 'Date' in df.columns and isinstance(df['Date'][0], str):
+        df['Date'] = pd.to_datetime(df['Date'])  # Convert string to datetime if necessary
+
+
+    # Prepare the file based on selected format
+    if format == 'csv':
+        buffer =  io.BytesIO()
+        df.to_csv(buffer, index=False)
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True, download_name='Appointments.csv', mimetype='text/csv')
+    elif format == 'excel':
+        buffer = io.BytesIO()
+        df.to_excel(buffer, index=False)
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True, download_name='Appointments.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+@app.route('/downloadVets', methods=['POST'])
+def downloadVets():
+    format = request.form['format']
+
+    # Fetch data from Appointments table
+    vets = Vets.query.all()
+    data = [{'ID': vet.id,
+             'Service': vet.VetRole,
+             'Vet name': vet.VetName,
+             'Email': vet.Email,
+             'Date': vet.Gender}  # Format date as needed
+            for vet in vets]
+
+    # Convert data to pandas DataFrame
+    df = pd.DataFrame(data)
+    
+
+    # Prepare the file based on selected format
+    if format == 'csv':
+        buffer =  io.BytesIO()
+        df.to_csv(buffer, index=False)
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True, download_name='Vets.csv', mimetype='text/csv')
+    elif format == 'excel':
+        buffer = io.BytesIO()
+        df.to_excel(buffer, index=False)
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True, download_name='Vets.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+
+@app.route("/addVet", methods=["POST", "GET"])
 def addVet():
-    return render_template('soft-ui-dashboard-main/pages/addServices.html')
+    RegisterVet = RegisterVetForm()
+    roles = VetRoles.query.all() #get all the services
+    
+    # Create a list of tuples (id, role name) for SelectField choices
+    RegisterVet.VetRole.choices = [(str(role.VetRoleID), role.VetRoleName) for role in roles]
+    role_id = RegisterVet.VetRole.data
+    role = VetRoles.query.get(role_id)
+    DEFAULT_PROFILE_IMAGE = 'static/images/default.png'
+        
+    if RegisterVet.validate_on_submit():
+        file = request.files['license']
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(request.url)
+    
+        if file and file.filename.endswith('.pdf'):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(Config.LICENSE_FOLDER, filename)
+            print(f"Saving file to: {save_path}")  # Debug statement
+                
+            try:
+                file.save(save_path)
+                
+                #flash('Image has been successfully uploaded')
+                # image_url = url_for('uploaded_file', filename=filename)
+            except Exception as e:
+                flash(f"An error occurred while saving the file: {e}")
+                print(f"Error: {e}")  # Debug statement
+       
+            Password = generate_unique_vetpassword(12)
+            HashedP = set_password(Password)
+            vet = Vets(VetRole = role.VetRoleName, VetName = RegisterVet.VetName.data, Email=RegisterVet.Email.data, Gender=RegisterVet.Gender.data, Password= HashedP,Contact= DEFAULT_CONTACT,RecoveryEmail = DEFAULT_RECOVERYMAIL,License=filename,Profile_pic=DEFAULT_PROFILE_IMAGE)
+           
+            db.session.add(vet)
+            db.session.commit()
+            
+            EmailContent = render_template("emails/registervet.html", key=Password)
+            msg = Message(subject="Karibu Daktari!", sender='iamhawiana@gmail.com', recipients=[RegisterVet.Email.data])
+            msg.html = EmailContent
+
+            mail.send(msg)   
+            flash("Email sent to vet","primary")
+            #return render_template ('vet-verify.html', otp=key) 
+            
+        else:
+            flash("Please upload the license", "danger")
+  
+    # if RegisterVet.validate_on_submit():
+            
+    return render_template('soft-ui-dashboard-main/pages/addVet.html', RegisterVet = RegisterVet, roles=roles)
+        # else:
+        #     flash('Invalid file type. Please upload a PDF.', 'danger')
+        #     return redirect(request.url)
+        
+
+@app.route("/viewServices")
+def viewServices():
+    services = Services.query.all()
+    return render_template("soft-ui-dashboard-main/pages/viewServices.html", services=services)
 
 
-@app.route("/services")
+@app.route("/displayServices")
 def displayServices():
-    return render_template('services.html')
+    services = Services.query.all()
+    return render_template("Services.html", services=services)
+
+
+
+@app.route("/appointmentLists")
+def appointmentlists():
+    appointments = Appointments.query.filter_by(OwnerId=current_user.id).all()
+    if len(appointments) == 0:
+        return ("No appointment")
+    
+    return render_template("appLists.html", appointments = appointments)
 
 with app.app_context():
     db.create_all()

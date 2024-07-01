@@ -1,13 +1,7 @@
-.wholeNav{
-  width: 100%;
-  margin-top: -2px;
-}
-
 .home-nav {
-    width: 97%;
-    /* margin-top: -10px; */
+    width: 100%;
+    margin-top: -10px;
     display: flex;
-    height: 9vh;
     position: relative;
     z-index: 1;
     li {
@@ -16,15 +10,17 @@
       margin-left: 10px;
     }
   }
+
+ 
   
   .home-petco {
     font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
     color: #000;
     font-size: 30px;
-    margin-left: 15px;
+    margin-left: 20px;
     position: absolute;
     z-index: 10;
-    margin-top: 4px;
+    margin-top: 8px;
     width: 20%;
   
     img {
@@ -33,14 +29,15 @@
     }
   }
   
-  .nav-Item {
-    margin-left: -80px;
+  .nav-item {
+    margin-left: -90px;
     justify-content: space-between;
   
     .nav-link {
       font-size: 18px;
+      letter-spacing: 0.01em;
       color: #fca311;
-      font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      font-family: "Franklin Gothic Light", "Arial Narrow", Arial, sans-serif;
     }
   }
   
@@ -50,16 +47,14 @@
     z-index: 0;
     width: 20%;
     object-fit:contain;
-    /* overflow: hidden; */
-    margin-right: -480px;
-    margin-left: 250px;
+    margin-right: -420px;
+    margin-left: 170px;
   
     a {
-      margin: 12px;
+      margin: 10px;
       width: 90%;
     }
   }
-  
   .lock-img {
     margin-right: -10px;
     width: 5%;
@@ -78,26 +73,33 @@
   }
   
   .profile-icon:hover {
-    color: inherit; /* Keep the same color on hover */
+    color: inherit; 
   }
   
   .profile-icon i {
-    margin-left: -70px;
-    margin-top: 20px;
-    vertical-align: middle; /* Center the icon vertically */
+    margin-left: -90px;
+    margin-top: 10px;
+    margin-right:0px;
+    vertical-align: middle; 
   }
   
   .custom-dropdown-menu {
     font-size: 16px;
     width: 40px;
-    margin-top: 30px; /* Adjust this value to set how much lower the dropdown should display */
+    margin-top: 30px; 
   }
   
-  /* Optional: Add a transition effect for smooth appearance */
   .custom-dropdown-menu {
     transition: margin-bottom 0.3s ease;
   }
   
-  .dropdown-menu .a{
+  .dropdown{
     font-size: 15px;
+    background-color: white;
   }
+
+
+#logoutContent{
+  width: 100%;
+
+}

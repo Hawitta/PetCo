@@ -4,7 +4,7 @@
 
 
 <section class="pet-container">
-  
+
     <form class="pet-form" action="/addPet" method="POST">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -15,7 +15,7 @@
         {% endfor %}
         {% endif %}
         {% endwith %}
-        
+
         <h2> Register Pet</h2>
 
         <!-- Name input -->
@@ -39,13 +39,14 @@
         <div class="col-13 d-flex justify-content-around ">
             <!-- Age input -->
 
-            <div data-mdb-input-init class="form-outline mb-4">
-                <input type="number" id="form2Example2" name="Age" class="form-control" required />
+            <div data-mdb-input-init class="form-outline mb-4" style="height:5vh; width:40%;">
+                <input type="number"  name="Age" class="form-control" id="age" required/>
                 <label class="form-label" for="form2Example2">Age</label>
             </div>
 
             <!-- Gender input -->
-            <div data-mdb-input-init class="form-outline mb-4">
+            <div data-mdb-input-init class="form-outline mb-4" style="margin-left: -160px;">
+            <br><br>
                 <label class="form-label" for="form2Example1"> Gender</label><br /> <br />
                 <input type="radio" name="Gender" value="male"> Male &nbsp&nbsp
                 <input type="radio" name="Gender" value="female"> Female

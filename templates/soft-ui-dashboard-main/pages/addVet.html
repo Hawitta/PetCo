@@ -1,0 +1,104 @@
+{% extends "admin/adminNav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+
+<section class="reg-vet-container">
+
+    <form class="reg-vet-form" action="/addVet" method="POST" enctype="multipart/form-data">
+        {% if request.method == 'POST' %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flashes">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% endif %}
+
+
+        <h2> Register Vet</h2>
+        {{ RegisterVet.csrf_token }}
+
+        <!-- Name input -->
+        <div class="reg-errors">
+            {% for error in RegisterVet.VetRole.errors %}
+            <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="mb-3" style="margin-left: 11px;">
+            <label for="form-label" for="form2Example1" id="role-label">Roles:</label>
+            <select id="roles-select" name="VetRole" class="select-button">
+                {% for role in roles %}
+                <option value="{{ role.VetRoleID }}">{{ role.VetRoleName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Description input -->
+        <div class="reg-errors">
+            {% for error in RegisterVet.VetName.errors %}
+            <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div data-mdb-input-init class="form-outline mb-4">
+            <input type="text" id="form2Example1" name="VetName" class="form-control" />
+            <label class="form-label" for="form2Example1">Vet Name </label>
+        </div>
+
+        <!-- VetRole input -->
+        <div class="reg-errors">
+            {% for error in RegisterVet.Email.errors %}
+            <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div data-mdb-input-init class="form-outline mb-4">
+            <input type="text" id="form2Example1" name="Email" class="form-control" />
+            <label class="form-label" for="form2Example1">Email </label>
+        </div>
+
+        <!-- Gender input -->
+        <div data-mdb-input-init class="form-outline mb-5" style="margin-left: 11px;font-size: 16px;" id="radio">
+            <label class="form-label" for="form2Example1"> Gender</label><br />
+            <input type="radio" name="Gender" value="male" class="radio-container">Male 
+            <input type="radio" name="Gender" value="female"  class="radio-container">Female
+        </div>
+
+        <div class="reg-errors">
+            {% for error in RegisterVet.License.errors %}
+            <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="image-upload-wrap">
+            <input class="file-upload-input" name="license" type='file' onchange="readURL(this);" accept=".pdf" />
+            <div class="drag-text">
+                <h3>Drag and drop a file </h3>
+            </div>
+        </div>
+        <div class="file-upload-content">
+            <!-- <img class="file-upload-image" src="#" alt="your image" /> -->
+            <div class="image-title">
+                <i class="fas fa-file-pdf"></i><span class="image-title">Uploaded Image</span></button>
+            </div>
+
+            <div class="image-title-wrap">
+                <button type="button" onclick="removeUpload()" class="remove-image">Remove
+                </button>
+            </div>
+        </div>
+
+        <!-- <button type="Submit"> SUBMIT </button> -->
+        <div class="add-pet mt-4">
+            <button data-mdb-ripple-init type="submit" class="btn btn-block mb-3 mt-4 pet-btn" name="RegisterVet">Add
+                Vet</button>
+        </div>
+        <!-- Register buttons -->
+
+    </form>
+
+</section>
+
+{% endblock %}

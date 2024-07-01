@@ -1,0 +1,69 @@
+{% extends "base/nav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+<section class="appointment-form">
+    <form class="appform" action="/appointments" method="POST" enctype="multipart/form-data">
+        {% if request.method == 'POST' %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flashes">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% endif %}
+
+
+        <h2> Book Appointment</h2>
+        {{ csrf }}
+
+        <!-- Name input -->
+        <div class="mb-3 mt-4" >
+            <label for="form-label" for="form2Example1" id="role-label">Service :</label>
+            <select id="roles-select" name="ServiceName" class="select-button">
+                {% for service in services %}
+                <option value="{{ service.ServiceName }}">{{ service.ServiceName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="form-label" for="form2Example1" id="role-label">Pet :</label>
+            <select id="roles-select" name="PetName" class="select-button">
+                {% for pet in pets %}
+                <option value="{{ pet.PetName }}">{{ pet.PetName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <div class="form-outline mb-4 justify-content-space-between d-flex" style="width: 50%;margin-left: 0px;">
+            <label for="form-label" for="form2Example1" id="">Date</label> 
+             <input type="date" id="date"  name="StartDate" class="form-control" />
+          
+        </div>
+
+        <div class="form-outline mb-4">
+            <label class="form-label-shorten" for="form2Example1">Relevant information </label>
+            <input type="text" id="form2Example1" name="RelevantInfo" class="form-control" placeholder="More information"/>
+            
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" name = "Agree" id="flexCheckChecked" checked/>
+            <label class="form-check-label" for="flexCheckChecked">I understand that I will be assigned an appointment at any time on the selected date</label>
+          </div>
+
+        <!-- <button type="Submit"> SUBMIT </button> -->
+        <div class="add-pet mt-4">
+            <button data-mdb-ripple-init type="submit" class="btn btn-block mb-3 mt-4 pet-btn" name="RegisterVet">Book
+                Appointment</button>
+        </div>
+        <!-- Register buttons -->
+
+    </form>
+</section>
+
+    {% endblock %}

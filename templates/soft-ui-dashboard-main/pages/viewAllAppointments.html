@@ -1,0 +1,98 @@
+{% extends "admin/adminNav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+
+<div class="col-4" style="float: right;width:80%;">
+  <form action="/viewAllAppointments/1" method="POST" autocomplete="off">
+    <div class="row">
+      <div class="col-8">
+        <input type="text" class="search" name="tag" id="tag" placeholder="Pet name" />
+
+      </div>
+      <button type="submit" class="btn btn-search" data-mdb-ripple-init>
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+  </form>
+</div>
+
+
+<div class="viewPetscontainer mt-3">
+
+  <div class="label-div">
+    <h4> Appointments</h4>
+    <form action="/download_csv" method="post">
+      <button type="submit" name="format" class="downloads" value="csv"><i class="fas fa-download"></i>  CSV</button>
+      <button type="submit" name="format"  class="downloads" value="excel"><i class="fas fa-download"></i> Excel</button>
+  </form>
+  </div>
+  
+
+  <section class="appLists">
+
+    <table class="table align-middle bg-white" id="table">
+      <thead class="bg-light">
+        <tr>
+          <th>Id</th>
+          <th>Service Name </th>
+          <th>Pet Name</th>
+          <th>Owner </th>
+          <th>Status</th>
+          <th>Date</th>
+        
+        </tr>
+      </thead>
+      <tbody>
+        {% if app_details%}
+        <tr id="result">
+          {% for app in app_details %}
+          <td>{{ app.id }} </td>
+          <td>{{ app.servicename }}</td>
+          <td>{{ app.petname }}</td>
+          <td> {{ app.owner}}</td>
+          <td> {{ app.status }}</td>
+          <td> {{ app.date }}</td>
+          
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% else %}
+  <div>
+    <p> </p>
+  </div>
+  {% endif %}
+
+  {% if pagination.pages > 1 %}
+  <ul class="pagination">
+    {% if pagination.has_prev %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for('viewAllAppointments', page=pagination.prev_num) }}"><i
+          class="fas fa-angles-left"></i></a>
+    </li>
+    {% endif %}
+    {% for page_num in pagination.iter_pages() %}
+    {% if page_num %}
+    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+      <a class="page-link" href="{{ url_for('viewAllAppointments', page=page_num) }}">{{ page_num }}</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled"><span class="page-link">...</span></li>
+    {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+    <li class="page-item"><a class="page-link" href="{{ url_for('viewAllAppointments', page=pagination.next_num) }}"><i
+          class="fas fa-angles-right"></i></a></li>
+    {% endif %}
+  </ul>
+  {% endif %}
+
+
+
+
+</div>
+
+{% endblock %}

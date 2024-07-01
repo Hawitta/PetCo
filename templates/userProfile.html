@@ -110,30 +110,20 @@
 
 
 
-        <div class="col-md-4 float-right top-0 align-items-center justify-content-between" id="pet-section">
-            <div class="p-3 py-5 mt-0">
-                <div class="d-flex justify-content-between align-items-center experience"><span>Pets</span>
+        <div class="col-md-4 float-right align-items-center justify-content-between" id="pet-section" style="margin-top: -270px;">
+            <div class="p-3 py-5 mt-0" >
+                <div class="d-flex justify-content-between align-items-center experience">
+                    <h5>Pets</h5>
                     <!-- <span class="border px-3 p-1 add-experience"><i class="fa fa-plus"></i>&nbsp;Experience</span> -->
                 </div><br>
-                <div class="col-md-12"><label class="labels" style="font-size: 16px;">{{ pets }}</label></div>
-
-                <div class="col-md-12"><label class="labels" style="font-size: 16px;"> {{ jj }}</label>
-                </div>
-                <div class="col-md-12"><label class="labels" style="font-size: 16px;"></label></div>
-
-                {% if pets %}
+            
                 <ul>
-                    {% for pet in pets %}
-                    <li>{{ pet.PetName }}</li>
-                    {% endfor %}
+                   
+                    <li>{{ pets.PetName }}</li>
+                   
                 </ul>
-                {% else %}
-                <p>No pets found.</p>
-                <p> p{{ pets }}</p>
-                <p> {{ current_user }}</p>
-                {% endif %}
-
-
+              
+              
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <button class="btn pet-button" type="button">

@@ -8,6 +8,7 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY')
     # Use forward slashes or raw string for Windows paths
     UPLOAD_FOLDER = os.path.join(basedir, 'static', 'uploads')
+    LICENSE_FOLDER = os.path.join(basedir, 'static', 'licenses')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 

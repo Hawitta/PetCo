@@ -1,0 +1,114 @@
+{% extends "vet/vetNav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+<div class="label-div">
+    <h4> Pending Appointments</h4>
+    <a class="app-btn" href="{{ url_for('bookappointment') }}">Book Appointment</a>
+    
+</div>
+
+<section class="appLists">
+
+    <table class="table align-middle bg-white" id="table">
+        <thead class="bg-light">
+            <tr>
+                <th>Id</th>
+                <th>Service </th>
+                <th>PetName</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th> </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+
+                {% for app in appointments %}
+                <td>
+                    <div class="d-flex align-items-center">
+                        {{ app.id }}
+                    </div>
+                </td>
+                <td>
+                    <p class="fw-normal mb-1">{{ app.ServiceName }}</p>
+                </td>
+                <td>{{ app.PetName }}</td>
+                <td>
+                    <span class="badge badge-success rounded-pill d-inline" style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px;">{{ app.Status
+                        }}</span>
+                </td>
+
+                <td> {{ app.Startdate }}</td>
+                <td>
+                    <button type="button" class="btn btn-link btn-sm btn-rounded">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+
+                </td>
+                {% endfor %}
+
+
+            </tr>
+            <tr>
+
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<div class="label-app-div">
+    <h4> Approved Appointments</h4>
+</div>
+
+
+<section class="bookedLists">
+
+    <table class="table align-middle bg-white" id="table">
+        <thead class="bg-light">
+            <tr>
+                <th>Id</th>
+                <th>Service </th>
+                <th>PetName</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th> </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+
+                {% for app in appointments %}
+                <td>
+                    <div class="d-flex align-items-center">
+                        {{ app.id }}
+                    </div>
+                </td>
+                <td>
+                    <p class="fw-normal mb-1">{{ app.ServiceName }}</p>
+                </td>
+                <td>{{ app.PetName }}</td>
+                <td>
+                    <span class="badge badge-success rounded-pill d-inline" style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px;">{{ app.Status
+                        }}</span>
+                </td>
+
+                <td> {{ app.Startdate }}</td>
+                <td>
+                    <button type="button" class="btn btn-link btn-sm btn-rounded">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+
+                </td>
+                {% endfor %}
+
+
+            </tr>
+            <tr>
+
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+{% endblock %}

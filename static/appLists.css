@@ -1,0 +1,69 @@
+.appLists{
+    width: 70%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    height: auto;
+    margin-top: 0px;   
+}
+
+
+.label-div{
+    margin-top: 20px;
+    display:flex;
+    align-content: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    width: 60%;
+    margin: auto;
+    /* margin-left: 180px; */
+    text-align: left;
+
+    h4{
+        text-align: left;
+        flex: 1;
+        font-size: 18px;
+        margin-top: 20px;
+        padding-bottom: 10px;
+    }
+}
+
+.label-app-div{
+    margin-top: 40px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    width: 50%;
+    text-align: left;
+    margin-left: 30px;
+    h4{
+        text-align: left;
+        font-size: 18px;
+    }
+}
+
+.app-btn{
+    width: 21%;
+    outline: none;
+    border-radius: 30px;
+    color: white;
+    text-transform:none;
+    background-color: #fca311;
+    /* margin: 40px; */
+    padding: 6px 2px;
+    height: 6vh;
+    text-decoration: none;
+    text-align: center;
+}
+
+.bookedLists{
+    width: 70%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    height: auto;
+    margin-top: 0px;   
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='img/apple-icon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+
+    <!-- Nucleo Icons -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/nucleo-icons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/nucleo-svg.css') }}">
+
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+
+    <!-- <link href="../assets/css/nucleo-svg.css" rel="stylesheet" /> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/nucleo-svg.css') }}">
+
+    <!-- CSS Files -->
+    <!-- <link id="pagestyle" href="../assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" /> -->
+    <link id="pagestyle" rel="stylesheet"
+        href="{{ url_for('static', filename='dashboard-css/soft-ui-dashboard.css') }}">
+
+    <!-- MODAL LOGOUT SCRIPTS-->
+    <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+
+
+    <link rel="stylesheet" href="../static/mdb/css/mdb.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script type="module" type="text/javascript" src="../static/mdb/js/mdb.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='vets/vetNav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vets/vetHome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vets/viewPets.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/addVet.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='services.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='formscss/userProfile.css') }}">
+
+
+    <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: {
+                    url: '/calendar',  // Fetch data from Flask route
+                    method: 'GET',
+                    failure: function () {
+                        alert('There was an error fetching appointments!');
+                    }
+                },
+                eventClick: function (info) {
+                    // Handle event click if needed
+                    console.log(info.event);
+                }
+            });
+            calendar.render();
+        });
+    </script>
+
+</head>
+
+<body>
+    <div class="vetNav" style="font-size: 17px;">
+        <nav class="navbar navbar-expand-lg shadow-none" style="background-color: #ffffff; " data-mdb-theme="light">
+            <div class="home-nav">
+                <button data-mdb-collapse-init class="navbar-toggler" type="button"
+                    data-mdb-target="#navbarCenteredExample" aria-controls="navbarCenteredExample" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="home-petco">
+                    <span style="margin-left: 10px;">PetCo
+                        <img src="{{ url_for('static', filename='images/pet-care.png') }}" id="logo" />
+                    </span>
+                </div>
+                <div class="collapse navbar-collapse justify-content-center" id="navbarCenteredExample">
+                    <ul class="navbar-nav mb-1 mb-lg-0">
+
+                        <li class="nav-item">
+                            <a class="nav-link" style="color:black;" aria-current="page" href="/vetHome">Dashboard</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="/displayServices">Services</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('viewPets', page = 1) }}">Pets </a>
+                        </li>
+                    </ul>
+
+                    <div class="menu">
+
+                        <div class="nav-item">
+                            <a style="color:#FCA311; font-size:18px;font-family:'Franklin Gothic Light', 'Arial Narrow', Arial, sans-serif; margin-left: 120px; padding-right: 10px;"
+                                class="nav-link" href="{{ url_for('checkPass') }}"> Lock </a>
+
+                            <!-- <img src="{{ url_for('static', filename='images/lock.png') }}" href="{{ url_for('checkPass') }}" class="lock-img" /> -->
+                        </div>
+                        <div class="nav-item">
+                            <a style="color:#FCA311; font-size: 18px;font-family:'Franklin Gothic Light', 'Arial Narrow';padding-left: 50px;"
+                                href="{{ url_for('vetHome') }}" class="nav-link" data-toggle="modal"
+                                data-target="#logoutModal">Log out</a>
+                        </div>
+                        <div class="dropdown">
+                            <a style="font-size: 29px; margin-right: 0px; margin-left:55px;width:100%;"
+                                class="profile-icon " href="/vetProfile"> <i class="fas fa-user-circle"></i> </a>
+                        </div>
+                    </div>
+
+                </div>
+
+        </nav>
+    </div>
+    <!-- Small modal -->
+    <div class="modal" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content" id="logoutContent">
+                <div class="modal-header">
+                    <h4>Log Out <i class="fa fa-lock"></i></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <p><i class="fa fa-question-circle"></i> Are you sure you want to log-off? <br /></p>
+
+                    <div class="actionsBtns">
+                       
+                        <a href="/logout" class="btn btn-default btn-primary">Logout</a>
+                        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>

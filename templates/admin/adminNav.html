@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='img/favicon.png') }}">
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  
   <!-- Nucleo Icons -->
   <link rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/nucleo-icons.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='dashboard-css/nucleo-svg.css') }}">
@@ -27,13 +28,37 @@
   <!-- Nepcha Analytics (nepcha.com) -->
   <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
   <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+   <!-- MODAL LOGOUT SCRIPTS-->
+   <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+       integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+       crossorigin="anonymous"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+       crossorigin="anonymous"></script>
+
+
 
     <link rel="stylesheet" href="../static/mdb/css/mdb.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script type="module" type="text/javascript" src="../static/mdb/js/mdb.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='adminNav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/adminNav.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/viewAllApp.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/addService.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/addVet.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/viewVets.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='services.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='formscss/userProfile.css') }}">
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script src="{{ url_for('static', filename='js/uploadPermit.js') }}"></script>
+    <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 </head>
 
@@ -55,13 +80,13 @@
                     <ul class="navbar-nav mb-1 mb-lg-0">
 
                         <li class="nav-Item">
-                            <a class="nav-link" style="color:black" aria-current="page" href="/homee">Dashboard</a>
+                            <a class="nav-link" style="color:black" aria-current="page" href="/adminHome">Dashboard</a>
                         </li>
                         <li class="nav-Item">
-                            <a class="nav-link" href="#">Add Vet </a>
+                            <a class="nav-link" href="/addVet">Add Vet </a>
                         </li>
                         <li class="nav-Item">
-                            <a class="nav-link" href="/viewPet">Add Service </a>
+                            <a class="nav-link" href="/addServices">Add Service </a>
                         </li>
                     </ul>
 
@@ -73,26 +98,40 @@
                             <!-- <img src="{{ url_for('static', filename='images/lock.png') }}" href="{{ url_for('checkPass') }}" class="lock-img" /> -->
                         </div>
                         <div class="nav-Item">
-                            <a style="color:#FCA311; font-size: 18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"
-                                class="nav-link" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#staticBackdrop">Log out</a>
+                            <a style="color:#FCA311; font-size: 18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;" 
+                                class="nav-link" data-toggle="modal" data-target="#logoutModal" >Log out</a>
                         </div>
                   
-                    <div class="dropdown">
-                        <a class="profile-icon" style="font-size: 24px; margin-right: 5px;" href="/adminProfile" role="button" id="dropdownMenuLink" data-mdb-dropdown-init
-                            data-mdb-ripple-init aria-expanded="false">
-                            <i class="fas fa-user-circle"></i>
-                        </a>
-
-                        <!-- <ul class="dropdown-menu custom-dropdown-menu" aria-labelledby="dropdownMenuLink">
-                            <li><a class="dropdown-item" href="/userProfile">My Profile</a></li>
-                            <li><a class="dropdown-item" href="/addPet">Add Pet</a></li>
-                            <li><a class="dropdown-item" href="/logout">Log Out</a></li>
-                        </ul> -->
+                        <div class="dropdown">
+                            <a style="font-size: 29px; margin-right: 0px; margin-left:5px;width:100%;"
+                                class="profile-icon " href="/adminProfile"> <i class="fas fa-user-circle"></i> </a>
+                        </div>
                     </div>
                 </div>
                 </div>
             </div>
         </nav>
+        <!-- Small modal -->
+    <div class="modal" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content" id="logoutContent">
+                <div class="modal-header">
+                    <h4>Log Out <i class="fa fa-lock"></i></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <p><i class="fa fa-question-circle"></i> Are you sure you want to log-off? <br /></p>
+
+                    <div class="actionsBtns">
+                       
+                        <a href="/logout" class="btn btn-default btn-primary">Logout</a>
+                        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
     {% block content %}
     {% endblock %}
