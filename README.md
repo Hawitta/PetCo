@@ -96,7 +96,7 @@ petco
 +--- requirements.txt
 +---README.md
 +---__pycache__
-
+``` 
 ### Overview:
 
 The project consists of the following main components:
