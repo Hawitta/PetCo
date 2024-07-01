@@ -77,7 +77,7 @@ petco
 ├───instance
 ├───migrations
 ├───static
-│   ├───admin    # Contains css for all admin pages
+│   ├───admin    /* Contains css for all admin pages */
 │   ├───formscss    #Contains css for all user forms
 │   ├───images    #Stores all images in the project
 │   ├───js    #Contains all javascript files 
