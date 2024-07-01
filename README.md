@@ -72,7 +72,7 @@ flask run
 
 # Project Structure:
 
-```markdown tree
+```markdown-tree
 
 petco 
   instance
