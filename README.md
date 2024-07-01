@@ -72,9 +72,8 @@ flask run
 
 # Project Structure:
 
-```markdown-tree
+```tree
 
-petco
 +---instance
 +---migrations
 |   +---versions
