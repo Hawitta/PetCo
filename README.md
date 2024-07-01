@@ -78,20 +78,20 @@ petco
 ├───migrations
 ├───static
 │   ├───admin    # Contains css for all admin pages 
-│   ├───formscss    /* Contains css for all user forms */
-│   ├───images    /* Stores all images in the project */
-│   ├───js    /* Contains all javascript files */
-│   ├───licenses    /* Stores licences for the vets */
-│   ├───petcss    /* Contains css for all pet pages */
-│   ├───uploads    /* Contains profile pictures of all users */
+│   ├───formscss    # Contains css for all user forms 
+│   ├───images    # Stores all images in the project 
+│   ├───js    # Contains all javascript files 
+│   ├───licenses    # Stores licences for the vets 
+│   ├───petcss    # Contains css for all pet pages 
+│   ├───uploads    # Contains profile pictures of all users 
 │   └───vets
-├───templates /* Contains all web pages of the system */
-├───app.py    /* Script to run the project */
-├───forms.py    /* All wtf forms used in the project */
-├───model.py    /* Models representing the users */
+├───templates # Contains all web pages of the system 
+├───app.py    # Script to run the project 
+├───forms.py    # All wtf forms used in the project 
+├───model.py    # Models representing the users 
 ├───README.md  
 ├───LICENSE
-├───requirements.txt    /* Library install requirements */
+├───requirements.txt    # Library install requirements 
 
 ```
 
