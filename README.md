@@ -66,6 +66,7 @@ flask run
 - **Output:** The application displays confirmation messages, updates to pet records, and appointment schedules.
 
 <br />
+
 # Project Structure:
 
 ### Overview:
