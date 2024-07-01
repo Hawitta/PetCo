@@ -79,19 +79,7 @@ flask run
     formscss
     images
     js
-|   +---licenses
-|   +---uploads
-+---templates
-|   +---admin
-|   +---base
-|   +---emails
-|   +---forms
-|   +---petForms
-+---app.py
-+---forms.py
-+---.gitignore
-+--- requirements.txt
-+---README.md
+```
 
 +---instance
 +---migrations
