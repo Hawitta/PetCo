@@ -2,7 +2,7 @@
 
 ## License
 
-!https://img.shields.io/badge/License-COZE-brightgreen.svg
+[![License: COZE](https://img.shields.io/badge/License-COZE-brightgreen.svg)](https://www.coze.com/docs/guides/osn?_lang=en)
 
 The Coze Bot SDK in this project is licensed under Coze  [LICENSE.md](notion://www.notion.so/link/to/your/LICENSE.md) for details.
 
