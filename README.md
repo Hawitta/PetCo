@@ -79,17 +79,24 @@ petco
 +---instance
 +---migrations
 |   +---versions
-|   |   +---__pycache__
-|   +---__pycache__
 +---static
+|   +---formscss
+|   +---images
+|   +---js
+|   +---licenses
+|   +---uploads
 +---templates
+|   +---admin
+|   +---base
+|   +---emails
+|   +---forms
+|   +---petForms
 +---app.py
 +---forms.py
 +---.gitignore
 +--- requirements.txt
 +---README.md
 +---__pycache__
-```
 
 ### Overview:
 
