@@ -73,6 +73,25 @@ flask run
 # Project Structure:
 
 ```tree
+  instance
+  migrations
+  static
+    formscss
+    images
+    js
+|   +---licenses
+|   +---uploads
++---templates
+|   +---admin
+|   +---base
+|   +---emails
+|   +---forms
+|   +---petForms
++---app.py
++---forms.py
++---.gitignore
++--- requirements.txt
++---README.md
 
 +---instance
 +---migrations
@@ -94,7 +113,7 @@ flask run
 +---.gitignore
 +--- requirements.txt
 +---README.md
-+---__pycache__
+
 ``` 
 ### Overview:
 
