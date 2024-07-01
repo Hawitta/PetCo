@@ -72,6 +72,40 @@ flask run
 
 # Project Structure:
 
++---instance
++---migrations
+|   +---versions
+|   |   +---__pycache__
+|   +---__pycache__
++---static
+|   +---admin
+|   +---dashboard-css
+|   +---formscss
+|   +---images
+|   +---img
+|   +---js
+|   +---licenses
+|   +---mdb
+|   +---petcss
+|   +---uploads
+|   +---vets
++---templates
+|   +---admin
+|   +---base
+|   +---emails
+|   +---forms
+|   +---petForms
+|   |   +---viewPets
+|   |   +---viewProfile
+|   +---soft-ui-dashboard-main
+|       +---assets
+|       +---docs
+|       +---media
+|       +---pages
+|   +---vets
++---__pycache__
+
+
 ### Overview:
 
 The project consists of the following main components:
