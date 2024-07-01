@@ -8,6 +8,7 @@ The Coze Bot SDK in this project is licensed under Coze  [LICENSE.md](notion://w
 
 The Pet Healthcare Management System is a Flask-based web application designed to manage the health records of pets efficiently. It allows pet owners and veterinarians to register pets, schedule appointments, track medical histories, and manage treatments all in one place. This system aims to simplify pet healthcare management, ensuring timely care and accurate record-keeping.
 <br />
+
 # Project Setup/Installation Instructions:
 
 ## Dependencies:
@@ -41,6 +42,7 @@ pip install -r requirements.txt
 
 ```
 <br />
+
 # Usage Instructions
 
 ## How to run
@@ -87,6 +89,7 @@ The project consists of the following main components:
 - **static/**: CSS, images, and other static assets.
 
 <br />
+
 ## Acknowledgements
 
 - [Awesome Readme Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
@@ -94,6 +97,7 @@ The project consists of the following main components:
 - [How to write a Good readme](https://bulldogjob.com/news/449-how-to-write-a-good-readme-for-your-github-project)
 
 <br />
+
 ## Contact Us
 
 For support,question or contribution email [iamhawiana@gmail.com](mailto:iamhawiana@gmail.com) or create an issue in this repository. This is the fastest way to reach us.
