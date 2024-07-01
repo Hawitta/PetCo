@@ -74,22 +74,26 @@ flask run
 
 ```markdown-tree
 <pre>
-petco 
-  instance
-  migrations
-  static
-    admin
-    dashboard-css
-    formscss
-    images
-    img
-    js
-    licenses
-    mdb
-    petcss
-    uploads
-    vets
-  templates
+
+D:.
++---instance
++---migrations
+|   +---versions
+|   |   +---__pycache__
+|   +---__pycache__
++---static
+|   +---admin
+|   +---dashboard-css
+|   +---formscss
+|   +---images
+|   +---img
+|   +---js
+|   +---licenses
+|   +---mdb
+|   +---petcss
+|   +---uploads
+|   +---vets
++---templates
 |   +---admin
 |   +---base
 |   +---emails
@@ -105,98 +109,7 @@ petco
 |   +---vets
 +---__pycache__
 
-Folder Structure for Project
-
-- instance
-- migrations
-  - versions
-    - __pycache__
-  - __pycache__
-- static
-  - admin
-  - dashboard-css
-  - formscss
-  - images
-  - img
-    - curved-images
-    - illustrations
-    - logos
-    - shapes
-    - small-logos
-    - theme
-  - js
-  - licenses
-  - mdb
-    - css
-    - img
-    - js
-    - src
-      - js
-        - autoinit
-          - callbacks
-          - initSelectors
-        - bootstrap
-          - dist
-            - dom
-            - util
-        - mdb-prefix
-          - dom
-          - util
-        - src
-          - dom
-          - util
-      - free
-    - mdb
-      - dom
-      - perfect-scrollbar
-        - handlers
-        - lib
-    - util
-      - touch
-  - scss
-    - bootstrap
-      - forms
-      - helpers
-      - mixins
-      - utilities
-      - vendor
-    - bootstrap-rtl-fix
-      - forms
-      - helpers
-      - mixins
-      - utilities
-      - vendor
-    - custom
-    - free
-      - forms
-      - mixins
-  - petcss
-  - uploads
-  - vets
-- templates
-  - admin
-  - base
-  - emails
-  - forms
-  - petForms
-    - viewPets
-    - viewProfile
-  - soft-ui-dashboard-main
-    - assets
-      - css
-      - fonts
-      - img
-        - curved-images
-        - illustrations
-        - logos
-        - shapes
-        - small-logos
-        - theme
-      - js
-        - core
-        - plugins
-    - sc
-
+```
 
 ### Overview:
 
