@@ -76,7 +76,7 @@ flask run
 
 The project consists of the following main components:
 
-- [**app.py](http://app.py/):** Main application entry point.
+- [**app.py**](http://app.py/): Main application entry point.
 - **templates/**: HTML templates for rendering web pages.
 - **static/**: Static files (e.g., CSS, images) used in the application.
 
