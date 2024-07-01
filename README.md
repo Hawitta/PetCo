@@ -71,14 +71,33 @@ flask run
 <br />
 
 # Project Structure:
-
 ```tree
-  instance
-  migrations
-  static
-    formscss
-    images
-    js
+Volume serial number is 02AD-E08E
+D:.
+├───instance
+├───migrations
+│   ├───versions
+│   │   └───__pycache__
+│   └───__pycache__
+├───static
+│   ├───admin
+│   ├───dashboard-css
+│   ├───formscss
+│   ├───images
+│   ├───img
+│   │   ├───curved-images
+│   │   ├───illustrations
+│   │   ├───logos
+│   │   ├───shapes
+│   │   ├───small-logos
+│   │   └───theme
+│   ├───js
+│   ├───licenses
+│   ├───mdb
+│   │   ├───css
+│   │   ├───img
+│   │   ├───js
+│   │   └───src
 ```
 
 +---instance
