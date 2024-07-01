@@ -72,6 +72,7 @@ flask run
 
 # Project Structure:
 
+```bash
 +---instance
 +---migrations
 |   +---versions
@@ -105,6 +106,7 @@ flask run
 |   +---vets
 +---__pycache__
 
+```
 
 ### Overview:
 
