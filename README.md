@@ -23,7 +23,7 @@ The Pet Healthcare Management System is a Flask-based web application designed t
 1. Clone the repository from GitHub
 
 ```bash
-git clone <https://github.com/https://github.com/Hawitta/PetCo.git>
+git clone <https://github.com/Hawitta/PetCo.git>
 
 ```
 
