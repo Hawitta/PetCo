@@ -75,40 +75,20 @@ flask run
 ```markdown-tree
 <pre>
 
-D:.
+petco
 +---instance
 +---migrations
 |   +---versions
 |   |   +---__pycache__
 |   +---__pycache__
 +---static
-|   +---admin
-|   +---dashboard-css
-|   +---formscss
-|   +---images
-|   +---img
-|   +---js
-|   +---licenses
-|   +---mdb
-|   +---petcss
-|   +---uploads
-|   +---vets
 +---templates
-|   +---admin
-|   +---base
-|   +---emails
-|   +---forms
-|   +---petForms
-|   |   +---viewPets
-|   |   +---viewProfile
-|   +---soft-ui-dashboard-main
-|       +---assets
-|       +---docs
-|       +---media
-|       +---pages
-|   +---vets
++---app.py
++---forms.py
++---.gitignore
++--- requirements.txt
++---README.md
 +---__pycache__
-
 ```
 
 ### Overview:
