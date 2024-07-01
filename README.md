@@ -73,7 +73,7 @@ flask run
 # Project Structure:
 
 ```markdown-tree
-
+<pre>
 petco 
   instance
   migrations
@@ -105,6 +105,7 @@ petco
 |   +---vets
 +---__pycache__
 
+</pre>
 ```
 
 ### Overview:
