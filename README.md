@@ -72,8 +72,8 @@ flask run
 
 # Project Structure:
 ```tree
-Volume serial number is 02AD-E08E
-D:.
+
+petco
 ├───instance
 ├───migrations
 │   ├───versions
@@ -85,43 +85,27 @@ D:.
 │   ├───formscss
 │   ├───images
 │   ├───img
-│   │   ├───curved-images
-│   │   ├───illustrations
-│   │   ├───logos
-│   │   ├───shapes
-│   │   ├───small-logos
-│   │   └───theme
 │   ├───js
 │   ├───licenses
 │   ├───mdb
-│   │   ├───css
-│   │   ├───img
-│   │   ├───js
-│   │   └───src
+│   ├───petcss
+│   ├───uploads
+│   └───vets
+├───templates
+│   ├───admin
+│   ├───base
+│   ├───emails
+│   ├───forms
+│   ├───petForms
+│   │   ├───viewPets
+│   │   └───viewProfile
+│   ├───soft-ui-dashboard-main
+│   │   ├───docs
+│   │   ├───media
+│   │   └───pages
+│   └───vets
 ```
 
-+---instance
-+---migrations
-|   +---versions
-+---static
-|   +---formscss
-|   +---images
-|   +---js
-|   +---licenses
-|   +---uploads
-+---templates
-|   +---admin
-|   +---base
-|   +---emails
-|   +---forms
-|   +---petForms
-+---app.py
-+---forms.py
-+---.gitignore
-+--- requirements.txt
-+---README.md
-
-``` 
 ### Overview:
 
 The project consists of the following main components:
