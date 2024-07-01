@@ -72,40 +72,39 @@ flask run
 
 # Project Structure:
 
-```bash
-|-- instance
-|-- migrations
-|   |-- versions
-|   |   +-- __pycache__
-|   +-- __pycache__
-|-- static
-|   |-- admin
-|   |-- dashboard-css
-|   |-- formscss
-|   |-- images
-|   |-- img
-|   |-- js
-|   |-- licenses
-|   |-- mdb
-|   |-- petcss
-|   |-- uploads
-|   +-- vets
-|-- templates
-|   |-- admin
-|   |-- base
-|   |-- emails
-|   |-- forms
-|   |-- petForms
-|   |-- soft-ui-dashboard-main
-|       |-- assets
-|       |   |-- css
-|       |   |-- fonts
-|       |   |-- img
-|       +-- docs
-|       +-- media
-|       +-- pages
-|-- vets
-+-- __pycache__
+```markdown tree
+
+petco 
+  instance
+  migrations
+  static
+    admin
+    dashboard-css
+    formscss
+    images
+    img
+    js
+    licenses
+    mdb
+    petcss
+    uploads
+    vets
+  templates
+|   +---admin
+|   +---base
+|   +---emails
+|   +---forms
+|   +---petForms
+|   |   +---viewPets
+|   |   +---viewProfile
+|   +---soft-ui-dashboard-main
+|       +---assets
+|       +---docs
+|       +---media
+|       +---pages
+|   +---vets
++---__pycache__
+
 ```
 
 ### Overview:
