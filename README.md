@@ -76,18 +76,12 @@ flask run
 petco
 ├───instance
 ├───migrations
-│   ├───versions
-│   │   └───__pycache__
-│   └───__pycache__
 ├───static
 │   ├───admin
-│   ├───dashboard-css
 │   ├───formscss
 │   ├───images
-│   ├───img
 │   ├───js
 │   ├───licenses
-│   ├───mdb
 │   ├───petcss
 │   ├───uploads
 │   └───vets
@@ -97,13 +91,15 @@ petco
 │   ├───emails
 │   ├───forms
 │   ├───petForms
-│   │   ├───viewPets
-│   │   └───viewProfile
 │   ├───soft-ui-dashboard-main
-│   │   ├───docs
-│   │   ├───media
-│   │   └───pages
 │   └───vets
+├───app.py
+├───forms.py
+├───model.py
+├───README.md
+├───LICENSE
+├───requirements.txt
+
 ```
 
 ### Overview:
