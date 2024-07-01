@@ -80,10 +80,8 @@ flask run
 |   +---__pycache__
 +---static
 |   +---admin
-|   +---dashboard-css
 |   +---formscss
 |   +---images
-|   +---img
 |   +---js
 |   +---licenses
 |   +---mdb
@@ -96,13 +94,7 @@ flask run
 |   +---emails
 |   +---forms
 |   +---petForms
-|   |   +---viewPets
-|   |   +---viewProfile
 |   +---soft-ui-dashboard-main
-|       +---assets
-|       +---docs
-|       +---media
-|       +---pages
 |   +---vets
 +---__pycache__
 
