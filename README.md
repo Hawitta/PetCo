@@ -61,7 +61,7 @@ flask run
 ### Examples:
 
 - **Register a Pet:** Fill out the registration form with pet details.
-- **Schedule an Appointment:** Navigate to the appointments section and choose a date and time.
+- **Schedule an Appointment:** Navigate to the profile drop-down menu and select appointment, use the button to redirect to book appointment form.
 
 ### Input/Output:
 
@@ -80,6 +80,7 @@ The project consists of the following main components:
 - **templates/**: HTML templates for rendering web pages.
 - **static/**: Static files (e.g., CSS, images) used in the application.
 
+  
 ### Key Files:
 
 - [**app.py**](http://app.py/): Flask application setup and routes.
@@ -93,12 +94,12 @@ The project consists of the following main components:
 
 ## Acknowledgements
 
-- [Awesome Readme Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
-- [Awesome README](https://github.com/matiassingers/awesome-readme)
-- [How to write a Good readme](https://bulldogjob.com/news/449-how-to-write-a-good-readme-for-your-github-project)
+- [Building an AI Chatbot with Coze](https://www.youtube.com/watch?v=KLpMdzHxG1A)
+- [Google Authentication with Flask](https://www.youtube.com/watch?v=FydJC3aP7mM)
+- [Data Visualization with Python](https://www.youtube.com/watch?v=a9UrKTVEeZA)
 
 <br />
 
 ## Contact Us
 
-For support,question or contribution email [iamhawiana@gmail.com](mailto:iamhawiana@gmail.com) or create an issue in this repository. This is the fastest way to reach us.
+For support,question or contribution email [iamhawiana@gmail.com](mailto:iamhawiana@gmail.com) or create an issue in this repository. This is the fastest way to reach out. Happy Coding!
