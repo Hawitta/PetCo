@@ -65,7 +65,8 @@ flask run
 - **Input:** Users input pet details and appointment information via web forms.
 - **Output:** The application displays confirmation messages, updates to pet records, and appointment schedules.
 
-## Project Structure:
+
+# Project Structure:
 
 ### Overview:
 
