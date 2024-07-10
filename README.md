@@ -29,14 +29,14 @@ git clone https://github.com/Hawitta/PetCo.git
 
 ```
 
-1. Navigate to project folder
+2. Navigate to project folder
 
 ```bash
   cd petco
 
 ```
 
-1. Install dependencies:
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -56,7 +56,7 @@ flask run
 
 ```
 
-1. Open a web browser and go to `http://localhost:5000` to view the application.
+3. Open a web browser and go to `http://localhost:5000` to view the application.
 
 ### Examples:
 
