@@ -5,7 +5,7 @@
 <div class="label-div">
     <h4> Pending Appointments</h4>
     <a class="app-btn" href="{{ url_for('bookappointment')}}">Book Appointment</a>
-
+    <a class="app-btn" href="{{ url_for('pastAppointments')}}">Past Appointments</a>
 </div>
 
 <section class="appLists">
@@ -25,30 +25,26 @@
     <table class="table align-middle bg-white" id="table">
         <thead class="bg-light">
             <tr>
-                <th>Id</th>
+                
                 <th>Service </th>
                 <th>PetName</th>
                 <th>Status</th>
                 <th>Date</th>
-                <th> </th>
+             
             </tr>
         </thead>
         <tbody> 
             {% for app in appointments %}
             
             <tr>
-                <td>
-                    <div class="d-flex align-items-center">
-                        {{ app.id }}
-                    </div>
-                </td>
+                
                 <td>
                     <p class="fw-normal mb-1">{{ app.ServiceName }}</p>
                 </td>
                 <td>{{ app.PetName }}</td>
                 <td>
-                    <span class="badge badge-success rounded-pill d-inline"
-                        style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px;">{{ app.Status
+                    <span class="badge badge-danger rounded-pill d-inline"
+                        style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px; color:white;">{{ app.Status
                         }}</span>
                 </td>
 
@@ -103,44 +99,31 @@
     <table class="table align-middle bg-white" id="table">
         <thead class="bg-light">
             <tr>
-                <th>Id</th>
                 <th>Service </th>
                 <th>PetName</th>
                 <th>Status</th>
                 <th>Date</th>
-                <th> </th>
+               
             </tr>
         </thead>
         <tbody>
-            {% for apps in apps %}
+            {% for appo in apps %}
             <tr>
                 <td>
-                    <div class="d-flex align-items-center">
-                        {{ apps.id }}
-                    </div>
+                    <p class="fw-normal mb-1">{{ appo.ServiceName }}</p>
                 </td>
-                <td>
-                    <p class="fw-normal mb-1">{{ apps.ServiceName }}</p>
-                </td>
-                <td>{{ apps.PetName }}</td>
+                <td>{{ appo.PetName }}</td>
                 <td>
                     <span class="badge badge-success rounded-pill d-inline"
                         style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px;">{{
-                        apps.Status}}</span>
+                        appo.Status}}</span>
                 </td>
 
-                <td> {{ apps.Startdate }}</td>
-                <td>
-                    <button type="button" class="btn btn-link btn-sm btn-rounded">
-                        <i class="fas fa-trash-can"></i>
-                    </button>
-
-                </td>
+                <td> {{ appo.Startdate }}</td>
+                
             </tr>
             {% endfor %}
-            <tr>
-
-            </tr>
+         
         </tbody>
     </table>
 </section>

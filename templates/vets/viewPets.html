@@ -41,7 +41,6 @@
                     <th>Pet Name </th>
                     <th>Type</th>
                     <th>Breed</th>
-                    <th>Age</th>
                     <th>Gender</th>
                     <th>Owner </th>
                 </tr>
@@ -54,14 +53,13 @@
                     <td>{{ pet.name }}</td>
                     <td>{{ pet.type }}</td>
                     <td> {{ pet.species}}</td>
-                    <td> {{ pet.age }}</td>
                     <td> {{ pet.gender }}</td>
                     <td> {{ pet.ownerFullname }}</td>
 
                 </tr>
                 {% endfor %}
                 {% else %}
-                    <li>No pets found.</li>
+                 
                 {% endif %}
             </tbody>
         </table>

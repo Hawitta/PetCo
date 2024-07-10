@@ -48,9 +48,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='vets/viewPets.css') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='admin/addVet.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='vets/petVitals.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='services.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/userProfile.css') }}">
 
+    <script src="{{ url_for('static', filename='js/uploadPermit.js') }}"></script>
 
     <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
@@ -74,6 +77,9 @@
             calendar.render();
         });
     </script>
+   
+    
+    
 
 </head>
 
@@ -110,14 +116,14 @@
                     <div class="menu">
 
                         <div class="nav-item">
-                            <a style="color:#FCA311; font-size:18px;font-family:'Franklin Gothic Light', 'Arial Narrow', Arial, sans-serif; margin-left: 120px; padding-right: 10px;"
+                            <a style="color:black; font-size:18px;font-family:'Franklin Gothic Light', 'Arial Narrow', Arial, sans-serif; margin-left: 120px; padding-right: 10px;"
                                 class="nav-link" href="{{ url_for('checkPass') }}"> Lock </a>
 
                             <!-- <img src="{{ url_for('static', filename='images/lock.png') }}" href="{{ url_for('checkPass') }}" class="lock-img" /> -->
                         </div>
                         <div class="nav-item">
-                            <a style="color:#FCA311; font-size: 18px;font-family:'Franklin Gothic Light', 'Arial Narrow';padding-left: 50px;"
-                                href="{{ url_for('vetHome') }}" class="nav-link" data-toggle="modal"
+                            <a style="color:#8968cd; font-size: 18px;font-family:'Franklin Gothic Light', 'Arial Narrow';padding-left: 50px;"
+                                 class="nav-link" data-toggle="modal" href="/logout"
                                 data-target="#logoutModal">Log out</a>
                         </div>
                         <div class="dropdown">
@@ -129,28 +135,30 @@
                 </div>
 
         </nav>
-    </div>
-    <!-- Small modal -->
-    <div class="modal" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content" id="logoutContent">
-                <div class="modal-header">
-                    <h4>Log Out <i class="fa fa-lock"></i></h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <p><i class="fa fa-question-circle"></i> Are you sure you want to log-off? <br /></p>
-
-                    <div class="actionsBtns">
-                       
-                        <a href="/logout" class="btn btn-default btn-primary">Logout</a>
-                        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <div class="modal" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content" id="logoutContent">
+                    <div class="modal-header">
+                        <h4>Log Out <i class="fa fa-lock"></i></h4>
+                        <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><i class="fa fa-question-circle"></i> Are you sure you want to log-off?
+                            <br /></p>
+    
+                        <div class="actionsBtns">
+    
+                            <a href="/logout" class="btn btn-default btn-primary">Logout</a>
+                            <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Small modal -->
+   
 
 
     {% block content %}

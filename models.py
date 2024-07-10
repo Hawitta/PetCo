@@ -53,7 +53,7 @@ class Pets(UserMixin, db.Model):
     PetName = db.Column(db.String(250), nullable=False)
     Type = db.Column(db.String(250), nullable=False)
     Species = db.Column(db.String(250), nullable=False)
-    Age = db.Column(db.Integer, nullable=False)
+    DateOfBirth = db.Column(db.String(250), nullable=False)
     Gender = db.Column(db.String(250), nullable=False)
     OwnerId = db.Column(db.Integer, db.ForeignKey('users.id'))
     Profile_pic = db.Column(db.String(250), nullable=False, default=DEFAULT_PROFILE_PET)
@@ -119,11 +119,24 @@ class Admins(UserMixin, db.Model):
 class Appointments(UserMixin, db.Model):
     __tablename__ = 'appointments'
     id = db.Column(db.Integer, primary_key=True)
-    ServiceName = db.Column(db.String(250), db.ForeignKey('services.ServiceName'), nullable=False)
-    PetName = db.Column(db.String(250), db.ForeignKey('pets.PetName'), nullable=False)
-    OwnerId = db.Column(db.String(250), db.ForeignKey('pets.OwnerId'), nullable=False)
+    ServiceName = db.Column(db.String(250), db.ForeignKey('services.ServiceName',onupdate="CASCADE", ondelete="CASCADE"),nullable=False)
+    PetName = db.Column(db.String(250), db.ForeignKey('pets.PetName', onupdate="CASCADE", ondelete="CASCADE"),nullable=False)
+    OwnerId = db.Column(db.String(250), db.ForeignKey('pets.OwnerId',onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     Startdate = db.Column(db.String(250), nullable=False)
     OtherInfo = db.Column(db.String(250), nullable=False)
     Status = db.Column(db.String(30), nullable=True, default=DEFAULT_STATUS)
     Time = db.Column(db.String(20), nullable=True, default=DEFAULT_TIME)
     Duration = db.Column(db.String(100), nullable=False, default=DEFAULT_DURATION)
+
+    
+class Vitals(UserMixin, db.Model):
+    __tablename__ = 'vitals'
+    id = db.Column(db.Integer, primary_key=True)
+    AppointmentID = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=False)
+    PetID = db.Column(db.Integer, db.ForeignKey('pets.PetID'),nullable=False)
+    Weight = db.Column(db.Integer, nullable=False)
+    Heartrate = db.Column(db.Integer, nullable=False)
+    Temperature = db.Column(db.Integer, nullable=False)
+    Mobility = db.Column(db.String(30), nullable=True)
+    Behaviour = db.Column(db.String(20), nullable=True)
+

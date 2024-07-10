@@ -6,8 +6,7 @@
     <div class="container rounded bg-white mt-5 mb-5">
         <div class="row">
 
-
-            <div class="col-md-3 text-center border-right" id="parent-profile">
+            <div class="col-md-4 text-center border-right" id="parent-profile">
                 <div id="profile">
                     <div class="d-flex justify-content-between align-items-center py-4">
                         {% if current_user.is_authenticated and current_user.Profile_pic %}
@@ -42,14 +41,14 @@
                 </form>
 
                 <div class="mt-5 text-center">
-                    <a href="/reset" class="reset-pass-button">Reset Password</a>
+                    <a href="/resetPassword" class="reset-pass-button">Reset Password</a>
 
                 </div>
 
                 <!-- <div class="mt-4 text-center mb-0">
                 </div> -->
             </div>
-            <div class="col-md-5 border-right">
+            <div class="col-md-6 border-right">
                 <div class="p-3 py-5 mt-0">
                     <div class="d-flex justify-content-between align-items-center mb-3 mt-0 ">
                         <h4 class="text-right">Profile Settings</h4>
@@ -109,26 +108,26 @@
         </form>
 
 
-
+<!-- 
         <div class="col-md-4 float-right align-items-center justify-content-between" id="pet-section" style="margin-top: -270px;">
             <div class="p-3 py-5 mt-0" >
                 <div class="d-flex justify-content-between align-items-center experience">
                     <h5>Pets</h5>
                     <!-- <span class="border px-3 p-1 add-experience"><i class="fa fa-plus"></i>&nbsp;Experience</span> -->
-                </div><br>
+                <!-- </div><br>
             
                 <ul>
                    
                     <li>{{ pets.PetName }}</li>
                    
-                </ul>
+                </ul> -->
               
               
-            </div>
+            <!-- </div>
             <div class="d-flex justify-content-between align-items-center">
                 <button class="btn pet-button" type="button">
                     <a href="/addPet">Add Pet</a></button>
-            </div>
+            </div>  -->
         </div>
 
     </div>

@@ -1,11 +1,11 @@
 from flask import Flask, render_template,session,redirect,abort, request,flash,g,url_for,jsonify
 from google_auth_oauthlib.flow import Flow
 from flask_mail import Mail,Message
-from datetime import datetime
+from datetime import datetime, time, date as dt_date
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, logout_user, current_user,login_required
 from flask_session import Session
-from models import Users,db,Pets,Services,VetRoles,Vets,Admins,Appointments
+from models import Users,db,Pets,Services,VetRoles,Vets,Admins,Appointments, Vitals
 from forms import LoginForm,AddServiceForm,VetRoleForm,RegistrationForm,RegisterVetForm,AdminRegisterForm
 from random import *
 from config import Config
@@ -331,8 +331,7 @@ def resetPassword():
         else:
             flash("Password not match")
             return redirect(url_for('login'))
-    else:
-            flash("Not validating",'danger')
+    
                 
     return render_template("forms/reset-password.html")
 
@@ -652,10 +651,10 @@ def addPet():
         PetName = request.form['PetName']
         Type = request.form['Type']
         Species = request.form['Species']
-        Age = request.form['Age']
+        DateOfBirth = request.form['DateOfBirth']
         Gender = request.form['Gender']
         
-        pet = Pets(PetName=PetName,Type=Type,Species=Species,Age=Age,Gender=Gender,OwnerId=current_user.id, Profile_pic=DEFAULT_PROFILE_IMAGE)
+        pet = Pets(PetName=PetName,Type=Type,Species=Species,DateOfBirth=DateOfBirth,Gender=Gender,OwnerId=current_user.id, Profile_pic=DEFAULT_PROFILE_IMAGE)
         db.session.add(pet)
         db.session.commit()
         flash('New pet registered','success')
@@ -732,16 +731,67 @@ def delete_pet_picture(pet):
     db.session.commit()
     return redirect(url_for('uploadPetPic'))
 
+@app.route('/deletePet',methods=['GET','POST'])
+def deletePet():
+    petid = request.form.get('petid')
+    print(petid)
+    if not petid:
+        return ("id not found")
+    else:
+        pet = Pets.query.filter_by(PetID = petid).first()
+        db.session.delete(pet)
+        db.session.commit()
+        
+        app = Appointments.query.filter_by(PetName = pet.PetName).all()
+        for apps in app:
+            db.session.delete(apps)
+            db.session.commit() 
+        
+    return redirect(url_for('viewPet'))
+    
 
+@app.route("/deleteVet", methods=["POST"])
+def deleteVet():
+    vetid = request.form.get('vetid')
+   
+    if not vetid:
+        return ("id not found")
+    else:
+        vet = Vets.query.filter_by(id = vetid).first()
+       
+        db.session.delete(vet)
+        db.session.commit() 
+        
+    return redirect(url_for('viewVets') ) 
+    
 @app.route("/appointmentInfo")
 def appointmentInfo():
-    appointments = Appointments.query.filter_by(OwnerId=current_user.id, Status = 'Pending').all()
-    if len(appointments) == 0:
-        return render_template("forms/appointments.html", appointments = appointments)
+    id = current_user.id
+    print(id)
     
-    apps = Appointments.query.filter_by(OwnerId=current_user.id, Status='Approved').all()
+    apps = Appointments.query.filter_by(OwnerId=id, Status='Approved').all()
+    print(apps)
+    print('Hello')
+    appointments = Appointments.query.filter_by(OwnerId=id, Status = 'Pending').all()
+    # if len(appointments) == 0:
+    #     return render_template("forms/appointments.html", appointments = appointments)
+    
     
     return render_template("forms/appointments.html", appointments = appointments, apps=apps)
+
+@app.route("/pastAppointments")
+def pastAppointments():
+    id = current_user.id
+    print(id)
+    today = dt_date.today()
+    
+    app = Appointments.query.filter(
+        Appointments.OwnerId == id,
+        Appointments.Status == 'Approved',
+        Appointments.Startdate < today.strftime('%Y-%m-%d')
+    ).all()
+
+    return render_template("forms/pastApp.html", app=app)
 
 @app.route("/appointments", methods=['GET','POST'])
 def bookappointment():
@@ -773,9 +823,35 @@ def bookappointment():
             flash("Appointment booked!","success")
           
   
-        
     return render_template("forms/bookApp.html", services = services, pets=pets)
 
+@app.route("/appointmentReject", methods=['GET','POST'])
+def appointmentReject():
+    if request.method == "POST":
+        appid = request.form.get('appReject')
+        message = request.form['Message']
+        print(message)
+        print(appid)
+  
+        if not appid:
+            return ("id not found")
+        else:
+            appointment = Appointments.query.filter_by(id = appid).first()
+            appointment.Status = 'Rejected'
+            userid = appointment.OwnerId
+            
+            db.session.commit()
+            
+            user = Users.query.filter_by(id = userid).first()
+            if user:
+                email = user.Email
+                EmailContent = render_template("emails/rejectedApp.html", reason = message, appid = appointment.id, petname = appointment.PetName)
+                msg = Message(subject="Appointment Status", sender='iamhawiana@gmail.com', recipients=[email])
+                msg.html = EmailContent
+                mail.send(msg)   
+                
+            return redirect(url_for('vetHome'))
+    
 
 @app.route("/deleteAppointment", methods=['GET','POST'])
 def deleteAppointment():
@@ -792,23 +868,24 @@ def deleteAppointment():
     
    
 
-
 ######################## VET MODULE ############################
 
 @app.route("/vetHome")
 def vetHome():
-    
     role = current_user.VetRole
 
     # Assuming Services and Appointments are your SQLAlchemy model classes
     serviceProvided = Services.query.filter_by(VetRole=role).first()
-
+    
     if serviceProvided:
         identified_service = serviceProvided.ServiceName
        
         # Retrieve appointments for the identified service
         bookings = Appointments.query.filter_by(ServiceName=identified_service, Status='Pending').all()
-
+      
+        today = dt_date.today()
+        app = Appointments.query.filter_by(Startdate = today).all()
+    
         for book in bookings:
             if book.Status == 'Pending':
             # Process bookings into a list for rendering
@@ -821,8 +898,10 @@ def vetHome():
                         "info": appointment.OtherInfo,
                         "status": appointment.Status
                     })
-        
-    
+            
+        if len(bookings) == 0:
+            return render_template("vets/vetHome.html", bookings = [], app = app)
+                     
     return render_template("vets/vetHome.html", bookings = bookings_list)
 
 @app.route("/vetProfile",methods=['POST', 'GET'])
@@ -831,6 +910,7 @@ def vetProfile():
     if request.method == 'POST':
         
         if 'file' not in request.files:
+
             flash('No file part')
             return redirect(request.url)
          
@@ -870,6 +950,7 @@ def vetProfile():
         else:
             flash('Allowed media types are - png, jpg, jpeg, gif')
             return redirect(request.url)
+        
     
     return render_template("vets/vetProfile.html")
 
@@ -886,22 +967,57 @@ def updateVet():
         Email = request.form["Email"]
         Contact = request.form["Contact"]
         RecoveryEmail = request.form["RecoveryEmail"]
+        License = user.License
         
         if is_valid_kenyan_phone_number(Contact) or " ":
-            user.VetName = Fullname
-            user.Email = Email
-            user.Contact = Contact
-            user.RecoveryEmail = RecoveryEmail
-           
-            db.session.commit()
-            flash('Details updated!', 'success')    
+            if Vets.query.filter_by(RecoveryEmail= RecoveryEmail):
+                user.VetName = Fullname
+                user.Email = Email
+                user.Contact = Contact
+                user.RecoveryEmail = RecoveryEmail
+                user.License = License
+            
+                db.session.commit()
+                flash('Details updated!', 'success')  
+            else:
+                flash('Email already exists')  
         else:
             flash("Invalid phone number","danger")
     else:
         flash("Form not receiving data", "danger")
 
-    return redirect(url_for('vetProfile'))
+    return render_template('vets/vetProfile.html', user=user)
 
+@app.route('/updateLicense', methods=["POST"])
+def updateLicense():
+    vet = Vets.query.filter_by(id = current_user.id).first()
+    print(vet.id)
+    
+    if request.method == "POST":
+        file = request.files['license']
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(request.url)
+        
+        if file and file.filename.endswith('.pdf'):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(Config.LICENSE_FOLDER, filename)
+            print(f"Saving file to: {save_path}")  # Debug statement
+        
+            try:
+                file.save(save_path)    
+                vet.License = filename
+                db.session.commit()
+                flash("License updated!","success")
+                        
+            except Exception as e:
+                    flash(f"An error occurred while saving the file: {e}")
+                    print(f"Error: {e}")  # Debug statement
+    else:
+        flash("No new","danger")
+
+    return render_template('vets/vetProfile.html', user=vet, license=license)
+    
 
 # @app.route('/', methods=['GET', 'POST'])
 @app.route('/viewPets/<int:page>', methods=["GET", "POST"])
@@ -920,7 +1036,6 @@ def viewPets(page=1):
             "name": pet.PetName,
             "type": pet.Type,
             "species": pet.Species,
-            "age": pet.Age,
             "gender": pet.Gender,
             "ownerFullname": owner.Fullname if owner else "Unknown"
         })
@@ -945,7 +1060,6 @@ def viewPets(page=1):
                 "name": pet.PetName,
                 "type": pet.Type,
                 "species": pet.Species,
-                "age": pet.Age,
                 "gender": pet.Gender,
                 "ownerFullname": owner.Fullname if owner else "Unknown"
             })
@@ -960,27 +1074,34 @@ def appStatus():
     
     if request.method == "POST":
         appid = request.form.get('appid')
-        time = request.form['Time']
+        Time = request.form['Time']
         duration = request.form['Duration']
         status ="Approved"
-        print(time)
-        print(duration)
-        print(appid)
         
         try:
-            selected_time = datetime.strptime(time, '%H:%M').time()
+            selected_time = datetime.strptime(Time, '%H:%M').time()
             start_time = time(hour=7)  # 7 AM
-            end_time = time(hour=18)    # 6 PM
+            end_time = time(hour=18)  # 6 PM
 
             if start_time <= selected_time < end_time:
                 # Time is within the allowed range, proceed with updating appointment
                 appointment = Appointments.query.filter_by(id=appid).first()
                 if appointment:
                     appointment.Status = status
-                    appointment.Time = time
+                    appointment.Time = selected_time.strftime('%H:%M')  # Assign parsed time
                     appointment.Duration = duration
+                    
                     db.session.commit()
-                    flash('Appointment approved!', "success")
+                    userid = appointment.OwnerId
+                    user = Users.query.filter_by(id = userid).first()
+                    if user:
+                        email = user.Email
+                    
+                        EmailContent = render_template("emails/approvedApp.html", petname = appointment.PetName, servicename = appointment.ServiceName)
+                        msg = Message(subject="Appointment Status", sender='iamhawiana@gmail.com', recipients=[email])
+                        msg.html = EmailContent
+
+                        mail.send(msg)   
             
             else:
                 flash('Select working hours only', 'danger')
@@ -997,25 +1118,40 @@ def appStatus():
 def viewApproved(page=1):
     per_page = 5
 
-    # Paginate the Pets query
-    apps_pagination = Appointments.query.filter_by(Status="Approved") \
+    apps_pagination = Appointments.query.filter_by(Status = "Approved") \
                                     .paginate(page=page, per_page=per_page, error_out=False)
     
     #apps_pagination = Appointments.query.paginate(page=page, per_page=per_page, error_out=False)
     app_details = []
     
     # Fetch the approved appointments
+   
+    upp_details = []
+    today = dt_date.today()
     for app in apps_pagination.items:
-        #owner = Appointments.query.filter_by(id = approvedIds).first()
-        app_details.append({
-            "id": app.id,
-            "servicename": app.ServiceName,
-            "petname": app.PetName,
-            "date": app.Startdate,
-            "time": app.Time,
-            "duration": app.Duration,
+        if app.Startdate> today.strftime('%Y-%m-%d'):
+            user = Users.query.filter_by(id=app.OwnerId).first()
+            upp_details.append({
+                "id": app.id,
+                "servicename": app.ServiceName,
+                "petname": app.PetName,
+                "date": app.Startdate,
+                "time": app.Time,
+                "duration": app.Duration,
+                "owner": user.Fullname if user else "Unknown"
+            })
+        elif (app.Startdate< today.strftime('%Y-%m-%d')):
+            user = Users.query.filter_by(id=app.OwnerId).first()
+            app_details.append({
+                "id": app.id,
+                "servicename": app.ServiceName,
+                "petname": app.PetName,
+                "date": app.Startdate,
+                "time": app.Time,
+                "duration": app.Duration,
+                "owner": user.Fullname if user else "Unknown"
         })
-    
+            
     # Handle POST request for search functionality
     if request.method == "POST" and 'tag' in request.form:
         search_query = request.form['tag']
@@ -1029,9 +1165,9 @@ def viewApproved(page=1):
         app_details = apps_search.paginate(page=page, per_page=per_page, error_out=False)
 
         results = []
-        
+            
         for app in app_details.items:
-           # petname = Pets.query.filter_by(id=pet.OwnerId).first()
+            user = Users.query.filter_by(id=app.OwnerId).first()
             results.append({
             "id": app.id,
             "servicename": app.ServiceName,
@@ -1039,12 +1175,15 @@ def viewApproved(page=1):
             "date": app.Startdate,
             "time": app.Time,
             "duration": app.Duration,
+            "owner": user.Fullname if user else "Unknown"
         })
+            
+     
         return render_template('vets/approvedAppointments.html', app_details=results, pagination=app_details)
 
-        
 
-    return render_template("vets/approvedAppointments.html", app_details=app_details, pagination=apps_pagination)
+
+    return render_template("vets/approvedAppointments.html", app_details=app_details, upp_details = upp_details,pagination=apps_pagination)
 
 
 @app.route('/calendar')
@@ -1064,13 +1203,20 @@ def approvedCalendar():
     return jsonify(appointments)
 
 
-
-
-
-
-
-
-
+@app.route('/petVitals', methods=['POST','GET'])
+def petVitals():
+    if request.method == "POST":
+        weight = request.form['Weight']
+        heartrate = request.form['Heartrate']
+        temperature = request.form['Temperature']
+        mobility = request.form['Mobility']
+        behaviour = request.form['Behaviour']
+        
+        #vitals = Vitals[AppointmentID = appid, PetID = petid, Weight = weight, Heartrate = heartrate, Temperature = temperature, Mobility = mobility, Behaviour = behaviour]
+        db.session.commit()
+        db.session.add()
+                
+    return render_template('vets/petVitals.html')
 
 
 ######################### ADMIN OPERATIONS ############################
@@ -1212,16 +1358,13 @@ def viewAllAppointments(page=1):
     return render_template("soft-ui-dashboard-main/pages/viewAllAppointments.html", app_details=app_details, pagination=app_pagination)
 
 
-
-
-
-
 @app.route("/adminHome")
 def admin():
     # Query the database to get data
     vets = Vets.query.all()
     users = Users.query.all()
     pets = Pets.query.all()
+    
     pet_count = len(pets)
     vet_count =(len(vets))
     owner_count = len(users)

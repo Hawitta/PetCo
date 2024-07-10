@@ -36,30 +36,22 @@
             <label class="form-label" for="form2Example1">Species</label>
         </div>
 
-        <div class="col-13 d-flex justify-content-around ">
-            <!-- Age input -->
+        <div class="form-outline mb-3" style="width: 50%;margin-left: -10px;">
+            <label for="form-label" for="form2Example1" id="">Date of birth</label> 
+             <input type="date" name="DateOfBirth" class="form-control" />
+        </div>
 
-            <div data-mdb-input-init class="form-outline mb-4" style="height:5vh; width:40%;">
-                <input type="number"  name="Age" class="form-control" id="age" required/>
-                <label class="form-label" for="form2Example2">Age</label>
-            </div>
-
-            <!-- Gender input -->
-            <div data-mdb-input-init class="form-outline mb-4" style="margin-left: -160px;">
-            <br><br>
-                <label class="form-label" for="form2Example1"> Gender</label><br /> <br />
-                <input type="radio" name="Gender" value="male"> Male &nbsp&nbsp
-                <input type="radio" name="Gender" value="female"> Female
-            </div>
-
+        <!-- Gender input -->
+        <div data-mdb-input-init class="form-outline" style="margin-left: -1px;">
+            <label class="form-label" for="form2Example1"> Gender</label><br /> <br />
+            <input type="radio" name="Gender" value="male"> Male &nbsp&nbsp
+            <input type="radio" name="Gender" value="female"> Female
         </div>
 
         <!-- Submit button -->
-        <!-- <button type="Submit"> SUBMIT </button> -->
         <div class="add-pet">
             <button data-mdb-ripple-init type="submit" class="btn btn-block mb-3 mt-4 pet-btn">Add Pet</button>
         </div>
-        <!-- Register buttons -->
 
     </form>
 </section>

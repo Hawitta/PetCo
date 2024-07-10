@@ -1,0 +1,101 @@
+{% extends "base/nav.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+<div class="label-div">
+    <h4> Past Appointments</h4>
+    <a class="app-btn" href="{{ url_for('bookappointment')}}">Book Appointment</a>
+  
+</div>
+
+<section class="appLists">
+
+    {% if request.method == 'POST' %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes">
+        {% for category, message in messages %}
+        <div class="alert alert-primary">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% endif %}
+
+    <table class="table align-middle bg-white" id="table">
+        <thead class="bg-light">
+            <tr>
+                
+                <th>Service </th>
+                <th>PetName</th>
+                <th>Status</th>
+                <th>Date</th>
+             
+            </tr>
+        </thead>
+        <tbody> 
+            {% if app %}
+            {% for app in app %}
+            <tr>
+                <td>
+                    <p class="fw-normal mb-1">{{ app.ServiceName }}</p>
+                </td>
+                <td>{{ app.PetName }}</td>
+                <td>
+                    <span class="badge badge-danger rounded-pill d-inline"
+                        style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px; color:white;">{{ app.Status
+                        }}</span>
+                </td>
+
+                <td> {{ app.Startdate }}</td>
+                <td>
+                    <button type="button" class="btn btn-link btn-sm btn-rounded" data-mdb-ripple-init
+                        data-mdb-modal-init data-mdb-target="#exampleModal" onclick="deleteAppointment('{{ app.id }}')">
+                        <i class="fas fa-trash-can" ></i>
+                    </button>
+                 
+                </td>
+            
+            </tr> 
+            {% endfor %}
+             {% endif %}
+            <p></p>
+         
+           
+        </tbody>
+    </table>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete Appointment</h5>
+                    <button type="button" class="btn-close" data-mdb-ripple-init data-mdb-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/deleteAppointment" method="POST">
+                        Are you sure you want to delete the appointment?
+                        <input type="hidden" id="appIdInput" name="appid">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-mdb-ripple-init
+                                data-mdb-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" data-mdb-ripple-init>Yes, delete</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function deleteAppointment(appid) {
+        // Set the appid value in the hidden input field
+        document.getElementById('appIdInput').value = appid;
+    }
+</script>
+
+{% endblock %}

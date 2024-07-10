@@ -92,14 +92,14 @@
 
                     <div class="menu">
                         <div class="nav-Item">
-                            <a style="color:#FCA311; font-size:18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-left: 90px;"
+                            <a style="color:black; font-size:18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-left: 90px;"
                                 class="nav-link" href="{{ url_for('checkPass') }}"> Lock </a>
 
                             <!-- <img src="{{ url_for('static', filename='images/lock.png') }}" href="{{ url_for('checkPass') }}" class="lock-img" /> -->
                         </div>
                         <div class="nav-Item">
-                            <a style="color:#FCA311; font-size: 18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;" 
-                                class="nav-link" data-toggle="modal" data-target="#logoutModal" >Log out</a>
+                            <a style="color:#8968cd; font-size: 18px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;" 
+                                class="nav-link" href="/logout" data-target="#logoutModal" data-toggle="modal" >Log out</a>
                         </div>
                   
                         <div class="dropdown">
@@ -112,26 +112,28 @@
             </div>
         </nav>
         <!-- Small modal -->
-    <div class="modal" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content" id="logoutContent">
-                <div class="modal-header">
-                    <h4>Log Out <i class="fa fa-lock"></i></h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <p><i class="fa fa-question-circle"></i> Are you sure you want to log-off? <br /></p>
+<!-- Modal -->
+<div class="modal" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" id="logoutContent">
+            <div class="modal-header">
+                <h4>Log Out <i class="fa fa-lock"></i></h4>
+                <button type="button" class="close" data-dismiss="modal"
+                    aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <p><i class="fa fa-question-circle"></i> Are you sure you want to log-off?
+                    <br /></p>
 
-                    <div class="actionsBtns">
-                       
-                        <a href="/logout" class="btn btn-default btn-primary">Logout</a>
-                        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    </div>
+                <div class="actionsBtns">
+
+                    <a href="/logout" class="btn btn-default btn-primary">Logout</a>
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
+</div>
     </div>
     {% block content %}
     {% endblock %}

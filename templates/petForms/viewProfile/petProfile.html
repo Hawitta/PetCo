@@ -50,7 +50,13 @@
                             <i class="fas fa-trash-alt"></i>
                     </div>
                 </form>
-
+                <div class="mt-5 mb-5 text-center">
+                    <form action="/deletePet" method="POST">
+                    <input type="hidden" id="appIdInput" name="petid">
+                    <button class="btn btn-primary"style="background-color:black; text-style:'none';" onclick="deletePet('{{ pet.PetID }}')" type="submit">Delete Pet
+                        </button>
+                    </form>
+                </div>
             </div>
             <div class="col-md-7 border-right">
                 <div class="p-3 py-1">
@@ -106,7 +112,12 @@
     </div>
     </div>
 
-
+    <script>
+        function deletePet(petid) {
+            // Set the appid value in the hidden input field
+            document.getElementById('appIdInput').value = petid;
+        }
+    </script>
 
     <!-- <script>
         function chooseFile() {

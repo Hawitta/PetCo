@@ -5,6 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <!-- MODAL LOGOUT SCRIPTS-->
+    <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+
 
     <link rel="stylesheet" href="../static/mdb/css/mdb.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -13,13 +24,13 @@
 
 
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/verify.css') }}">
-    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/res-em.css') }}">
 
 
 
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/otp.css') }}">
-    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='petcss/addPet.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
@@ -67,33 +78,30 @@
 
                     <div class="menu">
                         <div class="nav-item">
-                            <a style="color:#FCA311; font-size:19px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-left: 80px;"
+                            <a style="color:black; font-size:19px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-left: 70px; padding-right: 10px;"
                                 class="nav-link" href="{{ url_for('checkPass') }}"> Lock </a>
 
                             <!-- <img src="{{ url_for('static', filename='images/lock.png') }}" href="{{ url_for('checkPass') }}" class="lock-img" /> -->
                         </div>
                         <div class="nav-item">
-                            <a style="color:#FCA311; font-size: 19px;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;padding-left: 65px;"
-                                href="{{ url_for('logout') }}" class="nav-link">Log out</a>
+                            <a style="color:#8968CD; font-size: 19px;padding-left: 65px;"
+                                class="nav-link" data-toggle="modal"
+                                data-target="#logoutModal">Log out</a>
                         </div>
 
-
+                       
                         <div class="dropdown">
 
                             <!-- <a style="font-size: 29px; margin-right: 43px; margin-left:-10px;"
                                 class="btn btn-primary dropdown-toggle" type="button" data-mdb-dropdown-init data-mdb-ripple-init aria-expanded="False" > <i class="fas fa-user-circle"></i> </a> -->
-                                <button style="font-size: 29px; margin-right:37px ; margin-left:-10px;color: black; border: none; background-color: #ffffff; box-shadow: none;"
-                                class="btn btn-primary "
-                                type="button"
-                                id="dropdownExampleAnimation"
-                                data-mdb-dropdown-init
-                                data-mdb-ripple-init
-                                aria-expanded="false"
-                                data-mdb-dropdown-animation="off"
-                              ><i class="fas fa-user-circle"></i>
-                              
-                              </button>
-                              
+                            <button
+                                style="font-size: 29px; margin-right:37px ; margin-left:-10px;color: black; border: none; background-color: #ffffff; box-shadow: none;"
+                                class="btn btn-primary " type="button" id="dropdownExampleAnimation"
+                                data-mdb-dropdown-init data-mdb-ripple-init aria-expanded="false"
+                                data-mdb-dropdown-animation="off"><i class="fas fa-user-circle"></i>
+
+                            </button>
+
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                 <li><a class="dropdown-item" href="/userProfile">My Profile</a></li>
                                 <li><a class="dropdown-item" href="/addPet">Add Pet</a></li>
@@ -102,12 +110,35 @@
                             </ul>
                         </div>
                     </div>
+
                 </div>
             </div>
         </nav>
     </div>
     {% block content %}
     {% endblock %}
+    <div class="modal" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content" id="logoutContent">
+                <div class="modal-header">
+                    <h4>Log Out <i class="fa fa-lock"></i></h4>
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <p><i class="fa fa-question-circle"></i> Are you sure you want to log-off?
+                        <br /></p>
+
+                    <div class="actionsBtns">
+
+                        <a href="/logout" class="btn btn-default btn-primary">Logout</a>
+                        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

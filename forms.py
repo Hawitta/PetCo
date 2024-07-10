@@ -92,36 +92,7 @@ class RegisterVetForm(FlaskForm):
         if Vets.query.filter_by(Email=field.data).first():
             raise ValidationError('Email already exists')
 
-class VetLoginForm(FlaskForm):
-    Email = StringField('Email')
-    Password = PasswordField('Password')
-    Submit = SubmitField('Login')
 
-    def validate_Email(self, field):
-        if not Vets.query.filter_by(Email=field.data).first():
-            raise ValidationError('Invalid email')
-
-    def check_password(self, Password):
-        return bcrypt.check_password_hash(self.Password, Password)
-
-    def validate_Password(self, field):
-        user = Vets.query.filter_by(Email=self.Email.data).first()
-        if not user.check_password(field.data):
-            raise ValidationError('Invalid password')
-
-class AdminLoginForm(FlaskForm):
-    Email = StringField('Email')
-    Password = PasswordField('Password')
-    Submit = SubmitField('Login')
-
-    def validate_Email(self, field):
-        if not Admins.query.filter_by(Email=field.data).first():
-            raise ValidationError('Invalid email')
-
-    def check_password(self, Password):
-        return bcrypt.check_password_hash(self.Password, Password)
-
-        
 class AdminRegisterForm(FlaskForm):
     Firstname = StringField('Firstname', validators=[DataRequired()])
     Lastname = StringField('Lastname', validators=[DataRequired()])
