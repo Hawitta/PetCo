@@ -22,6 +22,7 @@
 
   <div class="label-div mt-4 mb-2" style="margin-left: 230px;">
     <h4> Upcoming Appointments</h4>
+    <a class="app-btn" href="/pastVetApps/1">Completed Appointments</a>
   </div>
 
   <section class="appLists">
@@ -56,46 +57,6 @@
     </table>
   </section>
 
-  <div class="label-div mt-4">
-    <h4> Past Appointments</h4>
-  </div>
-  
-  <section class="appLists">
-
-    <table class="table align-middle bg-white" id="table">
-      <thead class="bg-light">
-        <tr>
-         
-          <th>Service Name </th>
-          <th>Pet Name</th>
-          <th>Date </th>
-          <th>Time</th>
-          <th>Duration</th>
-          <th>Owner </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% if app_details%}
-        <tr id="result">
-          {% for app in app_details %}
-          
-          <td>{{ app.servicename }}</td>
-          <td>{{ app.petname }}</td>
-          <td> {{ app.date}}</td>
-          <td> {{ app.time }}</td>
-          <td> {{ app.duration }}</td>
-          <td> {{ app.owner }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </section>
-
-  {% else %}
-  <div>
-    <p> </p>
-  </div>
-  {% endif %}
 
   {% if pagination.pages > 1 %}
   <ul class="pagination">
@@ -121,9 +82,7 @@
   </ul>
   {% endif %}
 
-
-
-
 </div>
+
 
 {% endblock %}

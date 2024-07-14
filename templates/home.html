@@ -2,66 +2,43 @@
 {% block title %} {% endblock %}
 {% block content %}
 
-    
+<div class="home-body">
     <div class="illustration">
-        <div class="vet">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#f1def9"
-                    d="M52.3,-62.8C67.2,-49.8,78.3,-32.8,82.4,-13.8C86.6,5.1,83.8,26,73.5,41.2C63.3,56.5,45.5,66.2,26.9,72.3C8.4,78.3,-10.9,80.7,-24.7,73.3C-38.4,65.9,-46.6,48.7,-56.3,32.3C-66,15.8,-77.4,0.1,-75.7,-14C-74,-28.2,-59.4,-40.8,-44.6,-53.8C-29.8,-66.8,-14.9,-80.2,1.9,-82.5C18.7,-84.8,37.4,-75.8,52.3,-62.8Z"
-                    transform="translate(100 100)" />
-            </svg>
-            <img src="{{ url_for('static', filename='images/man-with-dog.png') }}" class="vet-dog" />
-        </div>
         <div class="row">
-            <div class="txt mt-5">
-                <h1>WELCOME TO <span class="purple">PETCO</span></h1>
+            <div class="txt mt-0">
+              
+                <p>WELCOME TO <span class="purple">PETCO</span></p>
+                <img src="{{ url_for('static', filename='images/lady-with-dog.png') }}" class="vet-dog" />
             </div>
-    
-        </div>
-    </div>
-
-    <div class="demo">
-        <p>Discover PetCo, your ultimate pet companion in Kenya! Whether you're a proud pet parent or planning to be
-            one, PetCo offers everything you need for your furry friends.</p>
+            <div class="best">
+                <h3> The Best Choice For Your Pets </h3>
+                <p> Pet Health Companion is dedicated to fostering healthier, 
+                    happier lives for pets and peace of mind for their owners. Join our community and take the first step towards optimal pet care today!</p>
+            </div>
+        
             
-        <div class="column1 mt-5" >
-            <button>Book Appointment</button>
         </div>
     </div>
 
-  
-    </div>
 
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-
-
-    <!-- <script type="text/javascript">
-
-        function preventBack() {
-            window.history.forward();
-        }
-
-        window.onload = function () {
-            preventBack()
-        };
-
-
-    </script>
-     -->
-     <div class="message">
-        <p>Get Help</p>
-      </div>
-     <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/0.1.0-beta.3/libs/oversea/index.js"></script>
-    <script>
-        new CozeWebSDK.WebChatClient({
-          config: {
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<div class="message">
+    <p>Get Help</p>
+</div>
+<script
+    src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/0.1.0-beta.3/libs/oversea/index.js"></script>
+<script>
+    new CozeWebSDK.WebChatClient({
+        config: {
             bot_id: '7377305195833278469',
-          },
-          componentProps: {
+        },
+        componentProps: {
             title: 'PetCo',
-          },
-        });
-    </script>
-  
+        },
+    });
+</script>
+
 {% endblock %}

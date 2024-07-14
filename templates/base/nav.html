@@ -27,12 +27,14 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/res-em.css') }}">
 
-
-
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/otp.css') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='petcss/addPet.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='petcss/petProfile.css') }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/userProfile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/reset-pass.css') }}">
@@ -42,6 +44,33 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='formscss/appointment.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='appLists.css') }}">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.14/index.global.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+   
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: {
+                    url: '/appCalendar',  // Fetch data from Flask route
+                    method: 'GET',
+                    failure: function () {
+                        alert('There was an error fetching appointments!');
+                    }
+                },
+                eventClick: function (info) {
+                    // Handle event click if needed
+                    console.log(info.event);
+                }
+            });
+            calendar.render();
+        });
+    </script>
+   
 </head>
 
 <body>
@@ -106,6 +135,7 @@
                                 <li><a class="dropdown-item" href="/userProfile">My Profile</a></li>
                                 <li><a class="dropdown-item" href="/addPet">Add Pet</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('appointmentInfo')}}">Appointments</a>
+                                <li><a class="dropdown-item" href="{{ url_for('userCalendar')}}">My Calendar</a>
                                 </li>
                             </ul>
                         </div>
@@ -138,7 +168,7 @@
             </div>
         </div>
     </div>
-
+   
 </body>
 
 </html>

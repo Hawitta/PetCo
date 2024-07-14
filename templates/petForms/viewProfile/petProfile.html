@@ -7,24 +7,12 @@
 
     <div class="container rounded bg-white mt-5 mb-5">
         <div class="row">
-            <!-- {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                <ul>
-                    {% for message in messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                {% endwith %} 
-              
-            -->
 
             <div class="col-md-5 text-center border-right border-left" id="parent-profile">
                 <div id="profile">
                     <div class="d-flex justify-content-between align-items-center py-4">
                         {% if current_user.is_authenticated and pet.Profile_pic %}
-                        <img class="rounded-circle"
-                        src="http://127.0.0.1:5000/{{ pet.Profile_pic }}" id="profile-pic">
+                        <img class="rounded-circle" src="http://127.0.0.1:5000/{{ pet.Profile_pic }}" id="profile-pic">
                         {% else %}
                         <img class="rounded-circle" src="{{ url_for('static', filename = pet.Profile_pic) }}"
                             id="profile-pic">
@@ -43,7 +31,7 @@
                         <input type="submit" value="Upload" />
                     </div>
                 </form>
-                <form method="POST" action="/delete-pet-picture">
+                <form method="POST" action="/delete-pet-picture/{{ pet.PetID }}">
                     <div class="delete_picture">
                         <button type="submit" class="delete-button"
                             onclick="return confirm('Are you sure you want to delete your profile picture?');">
@@ -52,64 +40,72 @@
                 </form>
                 <div class="mt-5 mb-5 text-center">
                     <form action="/deletePet" method="POST">
-                    <input type="hidden" id="appIdInput" name="petid">
-                    <button class="btn btn-primary"style="background-color:black; text-style:'none';" onclick="deletePet('{{ pet.PetID }}')" type="submit">Delete Pet
+                        <input type="hidden" id="appIdInput" name="petid">
+                        <button class="btn btn-primary" style="background-color:black;"
+                            onclick="deletePet('{{ pet.PetID }}')" type="submit">Delete Pet
                         </button>
                     </form>
                 </div>
             </div>
-            <div class="col-md-7 border-right">
+            <div class="col-md-7 border-right mb-4">
                 <div class="p-3 py-1">
                     <div class="d-flex justify-content-between align-items-center mb-0">
                         <h4 class="text-right">Profile Settings</h4>
                     </div>
                     <div class="row mt-3" id="profile-form-pet">
-                        <form action="/updateProfile" method="POST">
+                        <form action="/updatePetProfile" method="POST">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                            {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            {% endwith %}
+                    
                             <div class="col-md-12">
                                 <label class="labels">Fullname</label>
-                                <input type="text" name="UpdateFullname" class="form-control" placeholder=""
+                                <input type="text" name="Fullname" class="form-control" placeholder=""
                                     value="{{ pet.PetName }}">
                             </div>
 
                             <div class="col-md-12">
                                 <label class="labels">Type </label>
-                                <input type="text" name="UpdateEmail" class="form-control" placeholder="Enter email"
+                                <input type="text" name="Type" class="form-control" placeholder="Enter email"
                                     value="{{ pet.Type }}">
                             </div>
 
                             <div class="col-md-12">
                                 <label class="labels">Species </label>
-                                <input type="integer" name="UpdateContact" class="form-control" placeholder=""
+                                <input type="integer" name="Species" class="form-control" placeholder=""
                                     value="{{ pet.Species }}">
                             </div>
 
                             <div class="col-md-12">
                                 <label class="labels" for="sel1">Gender</label>
-                                <input type="integer" name="UpdateContact" class="form-control" placeholder=""
+                                <input type="integer" name="Gender" class="form-control" placeholder=""
                                     value="{{ pet.Gender }}">
 
                             </div>
 
                             <div class="col-md-12">
-                                <label class="labels" for="sel1">Age</label>
-                                <input type="integer" name="UpdateContact" class="form-control" placeholder=""
-                                    value="{{ pet.Age }}">
+                                <label class="labels" for="sel1">Date Of Birth</label>
+                                <input type="date" name="DOB" class="form-control" placeholder=""
+                                    value="{{ pet.DateOfBirth }}">
 
                             </div>
-
+                            <input type="hidden" value="{{ pet.PetID }}" name="id">
                             <div class="mt-5 mb-5 text-center">
                                 <button class="btn btn-primary profile-button" type="submit">Save
                                     Profile</button>
                             </div>
                     </div>
                     </form>
+
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-    </div>
-    </div>
     </div>
 
     <script>
@@ -119,11 +115,71 @@
         }
     </script>
 
-    <!-- <script>
-        function chooseFile() {
-           document.getElementById("fileInput").click();
-        }
-     </script> -->
-
 </section>
+
+
+<section class="petpro-page3 ">
+
+    <div class="container rounded bg-white mt-0 mb-0 ">
+        <div class="row">
+            <div class="col-md-9 " style="margin-left: 20px;">
+               <h4 style=" margin-top: 30px;">  Medical Data  <i class="fas fa-file-medical"></i></h4>
+               <p style="padding-top:8px;"> <i class="fas fa-circle-exclamation"></i> This is information is updated after checkup performed during appointments</p>
+            </div>
+            <div class="pet-app-container">
+                <div class="wrapper-vitals">
+                  <!-- <h5 style="padding: 10px; color: rgb(153, 23, 228);"> Current Pet Medical data:</h5> -->
+                    <div class="col-md-12">
+                        <label class="labels" style="font-size: 18px; font-weight: 500; color:rgb(45, 26, 59); padding-right: 15px;">Weight : </label> {{ vitals.Weight }} kg
+                    
+                    </div>
+
+                    <div class="col-md-12 mt-2">
+                        <label class="labels" style="font-size: 18px;font-weight: 500; color:rgb(45, 26, 59);padding-right: 15px;">Heart rate :  </label> {{ vitals.Heartrate }} bpm
+                    
+                    </div>
+
+                    <div class="col-md-12 mt-2"> 
+                        <label class="labels" style="font-size: 18px;font-weight: 500; color:rgb(45, 26, 59);padding-right: 15px;">Mobility and Joints :  </label> {{ vitals.Mobility }} 
+                       
+                    </div>
+
+                    <div class="col-md-12 mt-2"> 
+                        <label class="labels" style="font-size: 18px;font-weight: 500; color:rgb(45, 26, 59);padding-right: 15px;"> Behaviour :</label> {{ vitals.Behaviour }} 
+                    </div>
+
+                </div>
+              </div> 
+        </div>
+    </div>
+</section>
+
+<section class="petpro-page2">
+
+    <div class="container rounded bg-white mt-0 border-right border-left">
+        <div class="row">
+            <div class="col-md-5 " style="margin-left: 20px;">
+               <h4> Appointment History</h4>
+            </div>
+            <div class="pet-app-container">
+                <div class="wrapper">
+                  
+                  <ul class="sessions">
+                    {% if app %}
+                    {% for apps in app %}
+                    <li class="appointment-list">
+                      <div class="time"><h5>{{ apps.Startdate |safe }}</h5></div>
+                      <h6> {{ apps.ServiceName }} | {{ apps.Time }} hrs</h6>
+                      
+                    </li>
+                    {% endfor %}
+                    {% endif %}                
+                  </ul>
+                </div>
+              </div> 
+        </div>
+    </div>
+</section>
+
+
 {% endblock %}

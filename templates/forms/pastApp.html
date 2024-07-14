@@ -5,7 +5,7 @@
 <div class="label-div">
     <h4> Past Appointments</h4>
     <a class="app-btn" href="{{ url_for('bookappointment')}}">Book Appointment</a>
-  
+
 </div>
 
 <section class="appLists">
@@ -22,46 +22,50 @@
     {% endwith %}
     {% endif %}
 
-    <table class="table align-middle bg-white" id="table">
+    <table class="table align-middle bg-white mt-3" id="table">
         <thead class="bg-light">
             <tr>
-                
+                <th> </th>
                 <th>Service </th>
                 <th>PetName</th>
-                <th>Status</th>
+                <th>Information</th>
                 <th>Date</th>
-             
+                <th>Time</th>
+                <th>Duration</th>
+
             </tr>
         </thead>
-        <tbody> 
+        <tbody>
             {% if app %}
             {% for app in app %}
+
             <tr>
+                <td> {{ app.id }}</td>
                 <td>
                     <p class="fw-normal mb-1">{{ app.ServiceName }}</p>
                 </td>
                 <td>{{ app.PetName }}</td>
+                <td> {{ app.OtherInfo }}</td>
+                <td> {{ app.Startdate }}</td> 
+                <td> {{ app.Time }}</td>
+                <td> {{ app.Duration }}</td>
+
                 <td>
-                    <span class="badge badge-danger rounded-pill d-inline"
-                        style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px; color:white;">{{ app.Status
-                        }}</span>
+                    <form action="/viewVitals" method="POST" style="margin-top: 1px;">
+                        <input type="hidden" id="appIdInput" name="appid">
+                        <button type="submit" style="border: none; background-color: white; "onclick="getAppointment('{{ app.id }}')">
+                            <i class="far fa-eye" style="font-size: 19px;"></i>
+                        </button>
+                    </form>
+
                 </td>
 
-                <td> {{ app.Startdate }}</td>
-                <td>
-                    <button type="button" class="btn btn-link btn-sm btn-rounded" data-mdb-ripple-init
-                        data-mdb-modal-init data-mdb-target="#exampleModal" onclick="deleteAppointment('{{ app.id }}')">
-                        <i class="fas fa-trash-can" ></i>
-                    </button>
-                 
-                </td>
-            
-            </tr> 
+            </tr>
             {% endfor %}
-             {% endif %}
+            {% endif %}
             <p></p>
-         
-           
+
+
         </tbody>
     </table>
 
@@ -96,6 +100,13 @@
         // Set the appid value in the hidden input field
         document.getElementById('appIdInput').value = appid;
     }
+
+    function getAppointment(appid) {
+        // Set the appid value in the hidden input field
+        document.getElementById('appIdInput').value = appid;
+    }
+
+
 </script>
 
 {% endblock %}

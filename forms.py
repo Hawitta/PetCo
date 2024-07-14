@@ -113,3 +113,10 @@ class AdminRegisterForm(FlaskForm):
                 if not re.search(r"[0-9]", field.data):
                     raise ValidationError('Password must contain at least one number.')
 
+
+class VitalsForm(FlaskForm):
+    Weight = IntegerField('Weight', validators=[DataRequired(), NumberRange(min=0, max=30)])
+    Heartrate = IntegerField('Heartrate', validators=[DataRequired(), NumberRange(min=0, max=100)])
+    Temperature = IntegerField('Temperature', validators=[DataRequired(), NumberRange(min=0, max=100)])
+    Mobility = StringField('Mobility', validators=[DataRequired()])
+    Behaviour = StringField('Behaviour', validators=[DataRequired()])

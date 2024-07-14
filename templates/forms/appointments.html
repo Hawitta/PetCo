@@ -5,7 +5,7 @@
 <div class="label-div">
     <h4> Pending Appointments</h4>
     <a class="app-btn" href="{{ url_for('bookappointment')}}">Book Appointment</a>
-    <a class="app-btn" href="{{ url_for('pastAppointments')}}">Past Appointments</a>
+   
 </div>
 
 <section class="appLists">
@@ -22,29 +22,30 @@
     {% endwith %}
     {% endif %}
 
-    <table class="table align-middle bg-white" id="table">
+    <table class="table align-middle bg-white mt-4" id="table">
         <thead class="bg-light">
             <tr>
-                
+
                 <th>Service </th>
                 <th>PetName</th>
                 <th>Status</th>
                 <th>Date</th>
-             
+
             </tr>
         </thead>
-        <tbody> 
+        <tbody>
             {% for app in appointments %}
-            
+
             <tr>
-                
+
                 <td>
                     <p class="fw-normal mb-1">{{ app.ServiceName }}</p>
                 </td>
                 <td>{{ app.PetName }}</td>
                 <td>
                     <span class="badge badge-danger rounded-pill d-inline"
-                        style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px; color:white;">{{ app.Status
+                        style="font-size: 15px; padding:7px;line-height: 0.01em;margin-top: 10px; color:white;">{{
+                        app.Status
                         }}</span>
                 </td>
 
@@ -52,14 +53,14 @@
                 <td>
                     <button type="button" class="btn btn-link btn-sm btn-rounded" data-mdb-ripple-init
                         data-mdb-modal-init data-mdb-target="#exampleModal" onclick="deleteAppointment('{{ app.id }}')">
-                        <i class="fas fa-trash-can" ></i>
+                        <i class="fas fa-trash-can"></i>
                     </button>
-                 
+
                 </td>
-            
-            </tr> 
+
+            </tr>
             {% endfor %}
-           
+
         </tbody>
     </table>
 
@@ -89,21 +90,25 @@
     </div>
 </section>
 
-<div class="label-app-div">
-    <h4> Approved Appointments</h4>
+<div class="label-div">
+    <h4> Upcoming Appointments</h4>
+    <a class="app-btn" href="{{ url_for('pastAppointments')}}">Past Appointments</a>
+    
 </div>
 
 
 <section class="bookedLists">
 
-    <table class="table align-middle bg-white" id="table">
+    <table class="table align-middle bg-white mt-3" id="table">
         <thead class="bg-light">
             <tr>
                 <th>Service </th>
                 <th>PetName</th>
                 <th>Status</th>
                 <th>Date</th>
-               
+                <th>Time</th>
+                <th>Duration</th>
+
             </tr>
         </thead>
         <tbody>
@@ -120,10 +125,12 @@
                 </td>
 
                 <td> {{ appo.Startdate }}</td>
-                
+                <td> {{ appo.Time }}</td>
+                <td> {{ appo.Duration }}</td>
+
             </tr>
             {% endfor %}
-         
+
         </tbody>
     </table>
 </section>

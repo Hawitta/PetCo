@@ -1,0 +1,89 @@
+{% extends "base/nav.html" %}
+{% block title %}View Vitals{% endblock %}
+{% block content %}
+
+<section class="content">
+    <div class="container rounded bg-white mt-0 mb-5" style="margin-left: 100px; margin-top: -20px;">
+        <div class="row">
+
+            <div class="col-md-3 text-center border-right" id="parent-profile">
+                <div id="profile">
+                    <div class="d-flex justify-content-between align-items-center py-4">
+                        {% if current_user.is_authenticated and current_user.Profile_pic %}
+                        <img class="rounded-circle" src="http://127.0.0.1:5000/{{ current_user.Profile_pic }}"
+                            id="profile-pic">
+                        <!-- <img class="rounded-circle"
+                            src="{{ url_for('display_profile', filename=current_user.Profile_pic) }}" id="profile-pic"> -->
+                        {% else %}
+                        <img class="rounded-circle" src="{{ url_for('static', filename='images/profile-user.png') }}"
+                            id="profile-pic">
+                        {% endif %}
+                    </div>
+
+                </div>
+                <div class="mt-3 mb-2">
+                    <span class="font-weight-bold ">{{ petname }} </span><br />
+                </div>
+                <div class="mb-4 mt-3">
+                    <span class="text-black-50">{{ appname }}</span><span> </span>
+                </div>
+                <div class="mb-4 mt-3">
+                    <span class="text-black-50">{{ date }}</span><span> </span>
+                </div>
+
+
+            </div>
+            <div class="col-md-6 border-right" style="margin-left: 10px;">
+                <div class="p-3 py-5 mt-0">
+                    <div class="d-flex justify-content-between align-items-center mb-3 mt-0 ">
+                        <h3 class="text-right">Pet Vitals <i class="fas fa-notes-medical"></i> </h3>
+                    </div>
+                    <div class="row mt-0">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        <div class="flashes">
+                            {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+
+                        <div class="col-md-12 mt-3">
+                            <label class="labels" style="font-size: 18px; font-weight: 500; color:rgb(45, 26, 59); padding-right: 15px;">Weight : </label> {{ vitals.Weight }} kg
+                        
+                        </div>
+
+                        <div class="col-md-12 mt-3">
+                            <label class="labels" style="font-size: 18px;font-weight: 500; color:rgb(45, 26, 59);padding-right: 15px;">Heart rate :  </label> {{ vitals.Heartrate }} bpm
+                        
+                        </div>
+
+                        <div class="col-md-12 mt-3">
+                            <label class="labels" style="font-size: 18px;font-weight: 500; color:rgb(45, 26, 59);padding-right: 15px;">Temperature :  </label> {{ vitals.Temperature }} C
+                         
+                        </div>
+
+                        <div class="col-md-12 mt-3"> 
+                            <label class="labels" style="font-size: 18px;font-weight: 500; color:rgb(45, 26, 59);padding-right: 15px;">Mobility and Joints :  </label> {{ vitals.Mobility }} 
+                           
+                        </div>
+
+                        <div class="col-md-12 mt-3"> 
+                            <label class="labels" style="font-size: 18px;font-weight: 500; color:rgb(45, 26, 59);padding-right: 15px;"> Behaviour :</label> {{ vitals.Behaviour }} 
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+{% endblock %}

@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, logout_user, current_user,login_required
 from flask_session import Session
 from models import Users,db,Pets,Services,VetRoles,Vets,Admins,Appointments, Vitals
-from forms import LoginForm,AddServiceForm,VetRoleForm,RegistrationForm,RegisterVetForm,AdminRegisterForm
+from forms import LoginForm,AddServiceForm,VetRoleForm,RegistrationForm,RegisterVetForm,AdminRegisterForm,VitalsForm
 from random import *
 from config import Config
 from flask_paginate import Pagination, get_page_parameter
@@ -82,6 +82,7 @@ def generate_random_string(length):
 DEFAULT_PROFILE_IMAGE = 'static/images/default.png'
 DEFAULT_CONTACT = ""
 DEFAULT_VET_PROFILE = 'static/images/profile-user.png'
+DEFAULT_PET_PROFILE = 'static/images/pet-profile.png'
 DEFAULT_RECOVERYMAIL = " "
 DEFAULT_STATUS = "Pending"
 DEFAULT_DURATION = " "
@@ -213,20 +214,7 @@ def logchecker():
         else:
             flash("Otp does not match", "danger")
         
-# @app.route('/login-check/<otp>', methods=["GET","POST"])
-# def logchecker(otp):
-#     print(current_user.role)
-#     if request.method == "POST":
-#         code = request.form["user-otp"]
-#         if code == str(otp):
-#             if current_user.role == "user":
-#                 return redirect(url_for("home"))
-#             elif current_user.role == "vet":
-#                 return redirect(url_for("vetHome"))
-#             elif current_user.role == "admin":
-#                 return redirect(url_for("admin"))
-            
-    #return render_template("login-verify.html")
+
 
 # REGISTER USER
 @app.route('/register', methods=["GET","POST"])
@@ -565,12 +553,12 @@ def uploadProfile():
             
             current_user.Profile_pic = image_path
             db.session.commit()
-            if (current_user.role == "user"):
-                    return render_template('userProfile.html',filename=filename)
-            elif(current_user.role == "admin"):
-                return render_template('admin/adminProfile.html', filename=filename)
-            else:
-                return render_template('vets/vetProfile', filename=filename)
+            # if (current_user.role == "user"):
+            #         return render_template('userProfile.html',filename=filename)
+            # elif(current_user.role == "admin"):
+            #     return render_template('admin/adminProfile.html', filename=filename)
+            # else:
+            #     return render_template('vets/vetProfile', filename=filename)
             
         try:
             file.save(save_path)
@@ -584,7 +572,7 @@ def uploadProfile():
             
             
         else:
-            flash('Allowed media types are - png, jpg, jpeg, gif')
+
             return redirect(request.url)
     
     return render_template('userProfile.html', pets = pets)
@@ -670,34 +658,81 @@ def viewPet():
     
     return render_template('petForms/viewPets/viewPets.html', user_pets=user_pets)
 
+def get_day_suffix(day):
+    if 11 <= day <= 13:
+        return '<sup>th</sup>'
+    elif day % 10 == 1:
+        return '<sup>st</sup>'
+    elif day % 10 == 2:
+        return '<sup>nd</sup>'
+    elif day % 10 == 3:
+        return '<sup>rd</sup>'
+    else:
+        return '<sup>th</sup>'
+
+
 @app.route('/view-pet-profile/<int:first_pet>')    # view edit pet profile
 def view_pet_profile(first_pet):
+   
     pet = Pets.query.filter_by(PetID=first_pet).first()
     # profile_pic = pet.Profile_pic
     print(pet)
-    print(current_user)
-    return render_template('petForms/viewProfile/petProfile.html',pet=pet)
+    app = Appointments.query.filter_by(OwnerId = current_user.id, Status= "Approved", PetName = pet.PetName).all()
+    
+    if len(app) == 0 :
+        app = Appointments.query.filter_by(OwnerId = current_user.id, PetName = pet.PetName).all()
+        vitals = 0
+        app = 0
+
+    else:
+        for apps in app:
+            date = apps.Startdate
+            print(date)
+            date_obj = datetime.strptime(date, '%Y-%m-%d')
+            day_of_week = date_obj.strftime('%A')
+            
+            # Get the day with the suffix
+            day = date_obj.day
+            suffix = get_day_suffix(day)
+            formatted_day = f"{day}{suffix}"
+            
+            # Get the month and year
+            month = date_obj.strftime('%B')
+            year = date_obj.year
+            
+            # Format the complete date
+            formatted_date = f"{day_of_week}, {formatted_day} {month} {year}"
+            apps.Startdate = formatted_date
+        
+            vitals = Vitals.query.filter_by(AppointmentID = apps.id, PetID = pet.PetID).first()
+    
+    return render_template('petForms/viewProfile/petProfile.html',pet=pet, app = app, vitals=vitals)
 
 
-@app.route('/petProfilePic/<pet>', methods=['POST', 'GET'])   #upload pet profile picture
+@app.route('/petProfilePic/<int:pet>', methods=['POST', 'GET'])  # Upload pet profile picture
 def uplProfile(pet):
-    pet = Pets.query.filter_by(PetID=pet).first()
+    pet_obj = Pets.query.filter_by(PetID=pet).first()
+    app = Appointments.query.filter_by(OwnerId=current_user.id, Status="Approved", PetName=pet_obj.PetName).all()
+    for appoint in app:          
+        vitals = Vitals.query.filter_by(AppointmentID=appoint.id, PetID=pet_obj.PetID).first()
+    
+  
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part', "danger")
             return redirect(request.url)
-         
+        
         file = request.files['file']
         print(file)
         
         if file.filename == '':
-            flash('No file was selected',"danger")
+            flash('No file was selected', "danger")
             return redirect(request.url)
         else:
-            print(file.filename) #Dogfinal.jpg
-            file.filename = f"{pet.PetID}_{file.filename}" # re-name the image to match petid
+            print(file.filename)  # Dogfinal.jpg
+            file.filename = f"{pet}_{file.filename}"  # re-name the image to match petid
             print(file.filename)
-            
+        
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             save_path = os.path.join(Config.UPLOAD_FOLDER, filename)
@@ -706,30 +741,51 @@ def uplProfile(pet):
             db_path = os.path.join('static', 'uploads', filename)
             image_path = db_path.replace('\\', '/')
 
-            pet.Profile_pic = image_path
+            pet_obj.Profile_pic = image_path
             db.session.commit()
             
             try:
                 file.save(save_path)
-            
-                flash('Image has been successfully uploaded',"success")
-               # image_url = url_for('uploaded_file', filename=filename)
+                flash('Image has been successfully uploaded', "success")
             except Exception as e:
                 flash(f"An error occurred while saving the file: {e}")
                 print(f"Error: {e}")  # Debug statement
             
-            return render_template('petForms/viewProfile/petProfile.html',filename=filename, pet=pet)
+            app = Appointments.query.filter_by(OwnerId=current_user.id, Status="Approved", PetName=pet_obj.PetName).all()
+    
+            if len(app) == 0:
+                app = Appointments.query.filter_by(OwnerId=current_user.id, PetName=pet_obj.PetName).all()
+                vitals = 0
+                app = 0
+            else:
+                for apps in app:
+                    date = apps.Startdate
+                    print(date)
+                    date_obj = datetime.strptime(date, '%Y-%m-%d')
+                    day_of_week = date_obj.strftime('%A')
+                    day = date_obj.day
+                    suffix = get_day_suffix(day)
+                    formatted_day = f"{day}{suffix}"
+                    month = date_obj.strftime('%B')
+                    year = date_obj.year
+                    formatted_date = f"{day_of_week}, {formatted_day} {month} {year}"
+                    apps.Startdate = formatted_date
+                    vitals = Vitals.query.filter_by(AppointmentID=apps.id, PetID=pet_obj.PetID).first()
+            
+            return render_template('petForms/viewProfile/petProfile.html', filename=filename, pet=pet_obj, vitals=vitals,app = app)
         else:
             flash('Allowed media types are - png, jpg, jpeg, gif')
             return redirect(request.url)
     
-    return render_template('petForms/viewProfile/petProfile.html')
+    return render_template('petForms/viewProfile/petProfile.html', pet=pet_obj, vitals = vitals,app = app)
 
-@app.route('/delete-pet-picture/<int:pet>', methods=['POST'])  #Delete pet picture
+@app.route('/delete-pet-picture/<int:pet>', methods=['POST'])  # Delete pet picture
 def delete_pet_picture(pet):
-    pet.Profile_pic = None 
-    db.session.commit()
-    return redirect(url_for('uploadPetPic'))
+    pet_obj = Pets.query.filter_by(PetID=pet).first()
+    if pet_obj:
+        pet_obj.Profile_pic = DEFAULT_PET_PROFILE
+        db.session.commit()
+    return redirect(url_for('uplProfile', pet=pet))
 
 @app.route('/deletePet',methods=['GET','POST'])
 def deletePet():
@@ -749,7 +805,34 @@ def deletePet():
         
     return redirect(url_for('viewPet'))
     
+@app.route('/updatePetProfile', methods=['POST', 'GET']) # view User profile
+def updatePetProfile():
 
+    id = request.form["id"]
+    pet = Pets.query.filter_by(PetID = id).first()
+    if request.method == "POST":
+        Fullname = request.form["Fullname"]
+        Type = request.form["Type"]
+        Species = request.form["Species"]
+        Gender = request.form["Gender"]
+        DOB = request.form["DOB"]
+        pet = Pets.query.filter_by(PetID = id).first()
+        
+        pet.PetName = Fullname
+        pet.Type = Type
+        pet.Species = Species
+        pet.DateOfBirth = DOB
+        pet.Gender = Gender
+       
+        db.session.commit()
+        flash('Details updated',"success")
+        
+    
+        return redirect(url_for('view_pet_profile',first_pet = pet.PetID))
+
+
+
+#############################################################################333
 @app.route("/deleteVet", methods=["POST"])
 def deleteVet():
     vetid = request.form.get('vetid')
@@ -769,14 +852,15 @@ def appointmentInfo():
     id = current_user.id
     print(id)
     
-    apps = Appointments.query.filter_by(OwnerId=id, Status='Approved').all()
-    print(apps)
-    print('Hello')
+    today = dt_date.today()
+    apps = Appointments.query.filter(
+        Appointments.OwnerId == id,
+        Appointments.Status == 'Approved',
+        Appointments.Startdate > today.strftime('%Y-%m-%d')
+    ).all()
+
     appointments = Appointments.query.filter_by(OwnerId=id, Status = 'Pending').all()
-    # if len(appointments) == 0:
-    #     return render_template("forms/appointments.html", appointments = appointments)
-    
-    
+      
     return render_template("forms/appointments.html", appointments = appointments, apps=apps)
 
 @app.route("/pastAppointments")
@@ -792,6 +876,62 @@ def pastAppointments():
     ).all()
 
     return render_template("forms/pastApp.html", app=app)
+
+@app.route("/pastVetApps/<int:page>", methods=['GET','POST'])
+def pastVetApps(page=1):
+    
+    per_page = 5
+    apps_pagination = Appointments.query.filter_by(Status = "Approved") \
+                                    .paginate(page=page, per_page=per_page, error_out=False)
+    
+    app_details = []
+    
+    today = dt_date.today()
+    
+    for app in apps_pagination.items:
+        if(app.Startdate< today.strftime('%Y-%m-%d')):
+                user = Users.query.filter_by(id=app.OwnerId).first()
+                app_details.append({
+                    "id": app.id,
+                    "servicename": app.ServiceName,
+                    "petname": app.PetName,
+                    "date": app.Startdate,
+                    "time": app.Time,
+                    "duration": app.Duration,
+                    "owner": user.Fullname if user else "Unknown"
+            })
+            
+    # Handle POST request for search functionality
+    if request.method == "POST" and 'tag' in request.form:
+        search_query = request.form['tag']
+        print(f"Search query: {search_query}")
+
+        # Perform search by pet name (case-insensitive)
+        apps_search = Appointments.query.filter(Appointments.PetName.ilike(f"%{search_query}%"),  Appointments.Status == 'Approved', Appointments.Startdate < today.strftime('%Y-%m-%d'))
+        
+        # Paginate the search results
+        app_details = apps_search.paginate(page=page, per_page=per_page, error_out=False)
+
+        results = []
+            
+        for app in app_details.items:
+            user = Users.query.filter_by(id=app.OwnerId).first()
+            results.append({
+            "id": app.id,
+            "servicename": app.ServiceName,
+            "petname": app.PetName,
+            "date": app.Startdate,
+            "time": app.Time,
+            "duration": app.Duration,
+            "owner": user.Fullname if user else "Unknown"
+        })
+            
+        return render_template('vets/pastAppointments.html', app =results, pagination=app_details)
+
+    return render_template("vets/pastAppointments.html", app = app_details,pagination=apps_pagination)
+
+    # return render_template("vets/pastAppointments.html", app=app_details, pagination=apps_pagination)
+
 
 @app.route("/appointments", methods=['GET','POST'])
 def bookappointment():
@@ -1121,15 +1261,12 @@ def viewApproved(page=1):
     apps_pagination = Appointments.query.filter_by(Status = "Approved") \
                                     .paginate(page=page, per_page=per_page, error_out=False)
     
-    #apps_pagination = Appointments.query.paginate(page=page, per_page=per_page, error_out=False)
-    app_details = []
-    
     # Fetch the approved appointments
    
     upp_details = []
     today = dt_date.today()
     for app in apps_pagination.items:
-        if app.Startdate> today.strftime('%Y-%m-%d'):
+        if app.Startdate > today.strftime('%Y-%m-%d'):
             user = Users.query.filter_by(id=app.OwnerId).first()
             upp_details.append({
                 "id": app.id,
@@ -1140,25 +1277,16 @@ def viewApproved(page=1):
                 "duration": app.Duration,
                 "owner": user.Fullname if user else "Unknown"
             })
-        elif (app.Startdate< today.strftime('%Y-%m-%d')):
-            user = Users.query.filter_by(id=app.OwnerId).first()
-            app_details.append({
-                "id": app.id,
-                "servicename": app.ServiceName,
-                "petname": app.PetName,
-                "date": app.Startdate,
-                "time": app.Time,
-                "duration": app.Duration,
-                "owner": user.Fullname if user else "Unknown"
-        })
+        
             
-    # Handle POST request for search functionality
+   # Handle POST request for search functionality
     if request.method == "POST" and 'tag' in request.form:
         search_query = request.form['tag']
         print(f"Search query: {search_query}")
 
         # Perform search by pet name (case-insensitive)
-        apps_search = Appointments.query.filter(Appointments.PetName.ilike(f"%{search_query}%"),  Appointments.Status == 'Approved')
+        apps_search = Appointments.query.filter(Appointments.PetName.ilike(f"%{search_query}%"),  Appointments.Status == 'Approved',
+            Appointments.Startdate > today.strftime('%Y-%m-%d'))
         
 
         # Paginate the search results
@@ -1178,12 +1306,10 @@ def viewApproved(page=1):
             "owner": user.Fullname if user else "Unknown"
         })
             
-     
-        return render_template('vets/approvedAppointments.html', app_details=results, pagination=app_details)
+    
+        return render_template('vets/approvedAppointments.html', upp_details=results, pagination=app_details)
 
-
-
-    return render_template("vets/approvedAppointments.html", app_details=app_details, upp_details = upp_details,pagination=apps_pagination)
+    return render_template("vets/approvedAppointments.html", upp_details = upp_details,pagination=apps_pagination)
 
 
 @app.route('/calendar')
@@ -1202,21 +1328,84 @@ def approvedCalendar():
 
     return jsonify(appointments)
 
+@app.route('/userCalendar')
+def userCalendar():
+    return render_template('forms/userCalendar.html')
+
+@app.route('/appCalendar')
+def Calendar():
+    apps = Appointments.query.filter_by(OwnerId=current_user.id, Status = "Approved").all()
+
+    userAppointments = []
+    for app in apps:
+        # Format each appointment as required by FullCalendar
+        userAppointments.append({
+            'id': app.id,
+            'title': f'{app.PetName} -{app.ServiceName}',
+            'start': app.Startdate,  # Assuming Startdate is in ISO format (YYYY-MM-DD)
+            'time': app.Time,         # Assuming Time is in HH:MM format
+            'duration': app.Duration
+        })
+
+    return jsonify(userAppointments)
+    
+    
+@app.route('/tryP')
+def trysis():
+    return render_template('forms/calendartry.html')
+
+@app.route('/getAppID', methods=['POST','GET'])
+def appID():
+    if request.method == "POST":
+        appid = request.form['appid']
+        print(appid)
+        session['appid'] = appid
+    return redirect(url_for('petVitals'))
+
+@app.route('/viewVitals', methods=['POST','GET'])
+def viewVitals():
+    if request.method == "POST":
+        appid = request.form['appid']
+        selectedApp = Appointments.query.filter_by(id = appid).first() # Get appID
+        appname = selectedApp.ServiceName
+        date = selectedApp.Startdate
+        ownerID = selectedApp.OwnerId # Get owner ID
+        petname = selectedApp.PetName # Get pet name
+        
+        pet = Pets.query.filter_by(PetName = petname).first()
+        vitals = Vitals.query.filter_by(AppointmentID = appid, PetID = pet.PetID).first()
+        print(appid)
+        session['appid'] = appid
+    return render_template('petForms/viewVitals.html', vitals = vitals, appname = appname, petname = petname, date = date)
+
 
 @app.route('/petVitals', methods=['POST','GET'])
 def petVitals():
-    if request.method == "POST":
-        weight = request.form['Weight']
-        heartrate = request.form['Heartrate']
-        temperature = request.form['Temperature']
-        mobility = request.form['Mobility']
-        behaviour = request.form['Behaviour']
-        
-        #vitals = Vitals[AppointmentID = appid, PetID = petid, Weight = weight, Heartrate = heartrate, Temperature = temperature, Mobility = mobility, Behaviour = behaviour]
+    appid = session.get("appid")
+    print(appid)
+    selectedApp = Appointments.query.filter_by(id = appid).first() # Get appID
+    appname = selectedApp.ServiceName
+    ownerID = selectedApp.OwnerId # Get owner ID
+    petname = selectedApp.PetName # Get pet name
+    
+    # Filter to find the pet
+    pet = Pets.query.filter_by(PetName = petname, OwnerId = ownerID).first()
+    print(selectedApp)
+    vitals = Vitals.query.filter_by(AppointmentID = selectedApp.id, PetID = pet.PetID).first()
+    form = VitalsForm()
+    
+    if form.validate_on_submit():  
+        vitals = Vitals(AppointmentID = appid, PetID = pet.PetID, Weight = form.Weight.data, Heartrate = form.Heartrate.data, Temperature = form.Temperature.data, Mobility = form.Mobility.data, Behaviour = form.Behaviour.data)
+        db.session.add(vitals)
         db.session.commit()
-        db.session.add()
+        flash('Vitals updated', "success")
                 
-    return render_template('vets/petVitals.html')
+        petDetails = Vitals.query.filter_by(AppointmentID = appid, PetID = pet.PetID).first()
+        
+    else:
+        return render_template('vets/petVitals.html', form=form, petname = petname, appname = appname, vitals=vitals)
+    
+    return redirect(url_for('petVitals'))
 
 
 ######################### ADMIN OPERATIONS ############################
@@ -1259,7 +1448,6 @@ def newAdmin(otp):
             return('Invalid key','danger')
     
     return render_template("admin/verify-admin.html")
-
 
 
 # @app.route('/', methods=['GET', 'POST'])
@@ -1310,7 +1498,7 @@ def viewVets(page=1):
 # @app.route('/', methods=['GET', 'POST'])
 @app.route('/viewAllAppointments/<int:page>', methods=["GET", "POST"])
 def viewAllAppointments(page=1):
-    per_page = 10
+    per_page = 5
 
     # Paginate the Pets query
     app_pagination = Appointments.query.paginate(page=page, per_page=per_page, error_out=False)
@@ -1368,6 +1556,7 @@ def admin():
     pet_count = len(pets)
     vet_count =(len(vets))
     owner_count = len(users)
+    
     approved_appointments = Appointments.query.filter_by(Status='Approved').all()
     app_count = len(approved_appointments)
 
@@ -1432,11 +1621,24 @@ def admin():
     plt.savefig(plot_path)  # Save the plot to a file
     plt.close()
 
-    # Pass the path of the saved plot to the template
-    # return render_template('line_chart.html', plot_path=plot_path)
+    #Upcoming appointments list
+    today = dt_date.today()
+    upcoming_appointments = Appointments.query.filter(Appointments.Status=='Approved', Appointments.Startdate > today.strftime('%Y-%m-%d')).all()
+    
+   # Total cost of services approved
+    apps = Appointments.query.filter_by(Status = "Approved").all()
+    total_cost = 0
+    for app in apps:
+        service = app.ServiceName
+        
+        serv = Services.query.filter_by(ServiceName = service).all()
+        
+        for service in serv:
+            total_cost += service.Cost 
+            
 
-    return render_template('soft-ui-dashboard-main/pages/dashboard.html',vets=vets, plot_file=plot_file, pet_count = pet_count, 
-                           app_count = app_count, owner_count = owner_count, vet_count= vet_count, approved_appointments = approved_appointments, plot_path=plot_path)
+    return render_template('soft-ui-dashboard-main/pages/dashboard.html',vets=vets, plot_file=plot_file, pet_count = pet_count, total_cost = total_cost,
+                           app_count = app_count, owner_count = owner_count, vet_count= vet_count, approved_appointments = upcoming_appointments, plot_path=plot_path)
 
 
 @app.route("/adminProfile", methods=['POST', 'GET'])
@@ -1649,6 +1851,7 @@ def displayServices():
 
 @app.route("/appointmentLists")
 def appointmentlists():
+    
     appointments = Appointments.query.filter_by(OwnerId=current_user.id).all()
     if len(appointments) == 0:
         return ("No appointment")
